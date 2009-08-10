@@ -1,0 +1,419 @@
+/************************* General *************************/
+
+body {
+	font-family:"Trebuchet MS";
+}
+
+.button {
+	height:60px;
+}
+
+
+/************************* Search View *************************/
+
+#logo {
+	position:relative;
+	top:-300px;
+}
+
+img.centeredimg {
+	display:block;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:15px;
+	margin-bottom:15px;
+}
+
+#loginbutton {
+	margin-bottom:5px;
+}
+
+
+/************************* Status View *************************/
+
+.status_container {
+	position:absolute;
+	top:0;
+	left:0;
+}
+
+.status {
+	height:88px;
+	width:320px;
+	background-repeat:repeat-x;
+}
+
+.usrimg {
+	margin-top:19px;
+	margin-left:10px;
+	height:48px;
+	width:48px;
+	border:1px solid #fff;
+	float:left;
+	overflow:hidden;
+}
+
+.usrname {
+	margin-top:10px;
+	margin-left:15px;
+	height:20px;
+	width:130px;
+	float:left;
+	color:#ffd200;
+	font-size:16px;
+	font-weight:bold;
+	overflow:hidden;
+}
+
+.usrtime {
+	margin-top:12px;
+	margin-right:15px;
+	height:14px;
+	width:50px;
+	float:right;
+	color:#d9bc86;
+	font-size:13px;
+	font-style:italic;
+	text-align:right;
+}
+
+.usrmsg {
+	margin-left:15px;
+	height:48px;
+	width:235px;
+	float:left;
+	color:#fff;
+	font-size:13px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
+.usrmsgdetail {
+	margin-left:15px;
+	height:64px;
+	width:235px;
+	float:left;
+	color:#fff;
+	font-size:13px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
+.msgstamp {
+	margin-top:4px;
+	margin-left:27px;
+	height:14px;
+	width:235px;
+	color:#d9bc86;
+	float:left;
+	font-size:12px;
+	font-style:italic;
+	overflow:hidden;
+}
+
+#favicon {
+	height:26px;
+	width:27px;
+	margin-left:22px;
+	margin-top:-15px;
+	float:left;
+}
+
+heavy {
+	font-weight:bold;
+	font-style:normal;
+}
+
+.usrbio {
+	margin-left:15px;
+	height:76px;
+	width:130px;
+	float:left;
+	color:#ffd200;
+	font-size:12px;
+	overflow:hidden;
+}
+
+.usrstats {
+	margin-top:-15px;
+	margin-left:5px;
+	margin-right:0;
+	height:48px;
+	width:110px;
+	float:left;
+	color:#fff;
+	font-size:13px;
+	font-weight:bold;
+}
+
+#webbutton {
+	margin-top:20px;
+	margin-left:15px;
+	height:32px;
+	width:69px;
+	float:left;
+}
+
+#followbutton {
+	position:absolute;
+	top:76px;
+	left:8px;
+	height:32px;
+	width:56px;
+}
+
+hilite {
+	color:#e24f13;
+}
+
+lnk {
+	color:#ffd200;
+}
+
+
+/************************* Option View *************************/
+
+.option_container {
+	-webkit-border-radius:10px;
+	width:300px;
+	background-color:#fff;
+	margin:auto;
+}
+
+.editoption_container {
+	-webkit-border-radius:10px;
+	width:260px;
+	margin-right:2px;
+	background-color:#fff;
+	float:right;
+}
+
+.option {
+	height:48px;
+}
+
+.label {
+	color:#633d27;
+	font-weight:bold;
+	font-size:16px;
+	margin-left:16px;
+	float:left;
+	line-height:48px;
+	font-family:Helvetica;
+}
+
+.label2 {
+	color:#633d27;
+	font-weight:bold;
+	font-size:13px;
+	margin-left:10px;
+	float:left;
+	line-height:48px;
+	font-family:Helvetica;
+}
+
+.divider {
+	height:1px;
+	width:300px;
+	margin:auto;
+	border-bottom:1px solid #633d27;
+}
+
+.editdivider {
+	height:1px;
+	width:260px;
+	border-bottom:1px solid #633d27;
+}
+
+.editicon {
+	height:28px;
+	width:29px;
+	margin-left:-38px;
+	margin-top:11px;
+	float:left;
+}
+
+.header {
+	font-weight:bold;
+	color:#fff;
+	margin:12px;
+}
+
+.optleftimg {
+	margin-top:8px;
+	margin-left:10px;
+	margin-right:-10px;
+	float:left;
+} 
+
+.optendimg {
+	margin-top:18px;
+	margin-right:16px;
+	float:right;
+}
+
+#signouttext {
+	color:red;
+}
+
+#newaccounttext {
+	color:#87c440;
+}
+
+
+/************************* Search View *************************/
+
+.input_field {
+	height:30px;
+	width:240px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:15px;
+	margin-bottom:20px;
+}
+
+#smallsearch {
+	float:left;
+	margin-top:10px;
+	margin-left:10px;
+}
+
+
+/************************* Post View *************************/
+
+.postheader {
+	font-weight:bold;
+	color:#fff;
+	margin-top:12px;
+	margin-bottom:2px;
+	margin-left:12px;
+	margin-right:12px;
+	font-size:14px;
+	line-height:15px;
+	height:30px;
+}
+
+#text_field {
+	height:100px;
+	width:300px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:0;
+	margin-bottom:5px;
+}
+
+#counter {
+	font-size:12px;
+	font-weight:bold;
+	color:#fff;
+	margin-left:4px;
+	float:left;
+}
+
+ctext {
+	color:#d9bc86;
+	font-size:12px;
+	font-weight:normal;
+	font-style:italic;
+	margin-left:4px;
+}
+
+#photobutton {
+	height:32px;
+	width:32px;
+	margin-top:10px;
+	margin-right:10px;
+	float:right;
+}
+
+#postbutton {
+	margin-top:40px;
+	margin-bottom:10px;
+}
+
+
+/************************* Detail View *************************/
+
+.detail {
+	position:absolute;
+	top:0;
+	left:0;
+	height:118px;
+	width:320px;
+	background-image:url('images/BG_dark_large.png');
+	background-repeat:repeat-x;
+}
+
+.smallbutton_container {
+	position:absolute;
+	top:120;
+	left:0;
+	height:60px;
+	width:320px;
+	margin:10px 0px;
+}
+
+.smallbutton {
+	-webkit-border-radius:10px;
+	height:60px;
+	width:145px;
+	background-color:#fff;
+	float:left;
+}
+
+.replybutton {
+	margin-left:10px;
+	margin-right:5px;
+}
+
+.DMbutton {
+	margin-left:5px;
+	margin-right:10px;
+}
+
+.detailoption {
+	position:absolute;
+	top:230px;
+	left:10px;
+}
+
+.detaildivider {
+	position:absolute;
+	top:210px;
+	left:0;
+}
+
+.detaillabel {
+	color:#6f789b;
+	font-weight:bold;
+	font-size:18px;
+	text-align:center;
+	line-height:60px;
+	font-family:Helvetica;
+}
+
+/************************* Account View *************************/
+
+#checked {
+	position:absolute;
+	top:250px;
+	left:50px;
+}
+
+#unchecked {
+	position:absolute;
+	top:250px;
+	left:50px;
+}
+
+#defaulttext {
+	color:#fff;
+	margin-top:5px;
+	margin-left:65px;
+	font-size:13px;
+	font-weight:bold;
+}
+
+#verifybutton {
+	margin-top:30px;
+}

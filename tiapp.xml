@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+<id>com.appcelerator.spaz</id>
+<name>Spaz</name>
+<version>1.0</version>
+<icon>appicon.png</icon>
+	<persistent-wifi>false</persistent-wifi>
+	<prerendered-icon>false</prerendered-icon>
+	<statusbar-style>opaque</statusbar-style>
+    <windows>
+        <window>
+            <id>timeline</id>
+            <url>timeline.html</url>
+			<title>Timeline</title>
+			<backgroundImage>images/bg_all.png</backgroundImage>
+            <backgroundColor>#777</backgroundColor>
+			<icon>images/timeline_icon.png</icon>
+			<barColor>#423721</barColor>
+			<fullscreen>false</fullscreen>
+        </window>
+		<window>
+            <id>trends</id>
+            <url>trends.html</url>
+			<title>Trends</title>
+			<backgroundImage>images/bg_all.png</backgroundImage>
+            <backgroundColor>#111</backgroundColor>
+			<icon>images/trends_icon.png</icon>
+			<barColor>#423721</barColor>
+			<fullscreen>false</fullscreen>
+        </window>
+		<window>
+            <id>favorites</id>
+            <url>favorites.html</url>
+			<title>Favorites</title>
+			<backgroundImage>images/bg_all.png</backgroundImage>
+            <backgroundColor>#111</backgroundColor>
+			<icon>images/favorites_icon.png</icon>
+			<barColor>#423721</barColor>
+			<fullscreen>false</fullscreen>
+        </window>
+		<window>
+            <id>search</id>
+            <url>search.html</url>
+			<title>Search</title>
+			<backgroundImage>images/bg_all.png</backgroundImage>
+            <backgroundColor>#111</backgroundColor>
+			<icon>images/search_tab_icon.png</icon>
+			<barColor>#423721</barColor>
+			<fullscreen>false</fullscreen>
+        </window>
+		<window>
+            <id>more</id>
+            <url>more.html</url>
+			<title>More</title>
+			<backgroundImage>images/bg_all.png</backgroundImage>
+            <backgroundColor>#111</backgroundColor>
+			<icon>images/more_icon.png</icon>
+			<barColor>#423721</barColor>
+			<fullscreen>false</fullscreen>
+        </window>
+    </windows>
+</ti:app>
