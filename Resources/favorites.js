@@ -1,9 +1,16 @@
 function getFavorites() {
 	var loggedIn = props.getBool('loggedIn');
 	if (loggedIn == true) {
+		$("#fcontainer").empty();
 		var name = props.getString('username');
 		var pass = props.getString('password');
-		$("#fcontainer").empty();
+		var client = props.getString('client');
+		var request = '';
+		if (client == 0) {
+			request = "http://"+name+":"+pass+"@twitter.com/favorites.json";
+		} else {
+			request = "http://"+name+":"+pass+"@identi.ca/api/favorites.json";
+		}
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onload = function() {
 			var data = JSON.parse(this.responseText);
@@ -76,7 +83,7 @@ function getFavorites() {
 				return false;
 			});
 		}
-		xhr.open("GET","http://"+name+":"+pass+"@twitter.com/favorites.json");
+		xhr.open("GET",request);
 		xhr.send();
 	}
 	else {

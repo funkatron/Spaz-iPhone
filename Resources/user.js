@@ -7,9 +7,16 @@ window.onload = function() {
 	if (loggedIn == true) {
 		var name = props.getString('username');
 		var pass = props.getString('password');
+		var client = props.getInt('clientMode');
 		$(".hidden").css("display","inline");
 		//Check if you follow this user
 		var follow;
+		var request = '';
+		if (client == 0) {
+			request = "http://"+name+":"+pass+"@twitter.com/friendships/exists.json?user_a="+encodeURIComponent(name)+"&user_b="+encodeURIComponent(id);
+		} else {
+			request = "http://"+name+":"+pass+"@identi.ca/api/friendships/exists.json?user_a="+encodeURIComponent(name)+"&user_b="+encodeURIComponent(id);
+		}
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onload = function() {
 			var data = this.responseText;
@@ -22,7 +29,7 @@ window.onload = function() {
 				$("#followbutton").css("background-image","url('images/follow1.png')");
 			}
 		};
-		xhr.open("GET","http://"+name+":"+pass+"@twitter.com/friendships/exists.json?user_a="+encodeURIComponent(name)+"&user_b="+encodeURIComponent(id));
+		xhr.open("GET",request);
 		xhr.send();
 	}
 	else {
@@ -33,13 +40,23 @@ window.onload = function() {
 
 	//Get info on selected user
 	function getUserDetails() {
-		$.getJSON("http://twitter.com/users/show.json?screen_name="+encodeURIComponent(id)+"&callback=?", function(data){
+		var request = '';
+		if (client == 0) {
+			request = "http://twitter.com/users/show.json?screen_name="+encodeURIComponent(id);
+		} else {
+			request = "http://identi.ca/api/users/show.json?screen_name="+encodeURIComponent(id);
+		}
+		var xhr = Titanium.Network.createHTTPClient();
+		xhr.onload = function() {
+			var data = JSON.parse(this.responseText);
 			$(".usrimg").attr("src",data.profile_image_url);
 			$(".usrname").html(data.screen_name + " -");
 			$(".usrbio").html(data.description);
 			var stats = "followers:" + data.followers_count + "\nfollowing:" + data.friends_count + "\nupdates:" + data.statuses_count;
 			$(".usrstats").html(stats);
-		});
+		}
+		xhr.open("GET",request);
+		xhr.send();
 	};
 	
 	getUserDetails();
@@ -53,7 +70,13 @@ window.onload = function() {
 		width:69,
 	});
 	webbutton.addEventListener('click',function(e){
-		Titanium.Platform.openURL('http://www.twitter.com/'+encodeURIComponent(id));
+		var webpf = '';
+		if (client == 0) {
+			webpf = 'http://www.twitter.com/'+encodeURIComponent(id);
+		} else {
+			webpf = 'http://identi.ca/'+encodeURIComponent(id);
+		}
+		Titanium.Platform.openURL(webpf);
 	});
 	
 	
@@ -75,9 +98,15 @@ window.onload = function() {
 	        });
 			blockconfirm.addEventListener('click', function(k) {
 				if (k.index == 0) {
+					var request = '';
+					if (client == 0) {
+						request = "http://"+name+":"+pass+"@twitter.com/blocks/create/"+encodeURIComponent(id)+".json";
+					} else {
+						request = "http://"+name+":"+pass+"@identi.ca/api/blocks/create/"+encodeURIComponent(id)+".json";
+					}
 					var xhr = Titanium.Network.createHTTPClient();
 					xhr.onload = function() {};
-					xhr.open("POST","http://"+name+":"+pass+"@twitter.com/blocks/create/"+encodeURIComponent(id)+".json");
+					xhr.open("POST",request);
 					xhr.send();
 					Titanium.UI.currentWindow.close();
 				}
@@ -107,17 +136,29 @@ window.onload = function() {
 		$("#followbutton").bind('click',function(e){
 			if (follow == true) {
 				$(this).css("background-image","url('images/follow1.png')");
+				var request = '';
+				if (client == 0) {
+					request = "http://"+name+":"+pass+"@twitter.com/friendships/destroy.json?screen_name="+encodeURIComponent(id);
+				} else {
+					request = "http://"+name+":"+pass+"@identi.ca/api/friendships/destroy.json?screen_name="+encodeURIComponent(id);
+				}
 				var xhr = Titanium.Network.createHTTPClient();
 				xhr.onload = function() {};
-				xhr.open("POST","http://"+name+":"+pass+"@twitter.com/friendships/destroy.json?screen_name="+encodeURIComponent(id));
+				xhr.open("POST",request);
 				xhr.send();
 				follow = false;
 			}
 			else if (follow == false) {
 				$(this).css("background-image","url('images/unfollow1.png')");
+				var request = '';
+				if (client == 0) {
+					request = "http://"+name+":"+pass+"@twitter.com/friendships/create.json?screen_name="+encodeURIComponent(id);
+				} else {
+					request = "http://"+name+":"+pass+"@identi.ca/api/friendships/create.json?screen_name="+encodeURIComponent(id);
+				}
 				var xhr = Titanium.Network.createHTTPClient();
 				xhr.onload = function() {};
-				xhr.open("POST","http://"+name+":"+pass+"@twitter.com/friendships/create.json?screen_name="+encodeURIComponent(id));
+				xhr.open("POST",request);
 				xhr.send();
 				follow = true;
 			}
@@ -125,7 +166,7 @@ window.onload = function() {
 		
 		
 		//Reply button
-		$(".replybutton").bind('click',function(e){
+		$(".leftbutton").bind('click',function(e){
 			//Set postHeader, initialPost, postMode globals
 			props.setString('postHeader',"Reply to User");
 			props.setString('initialPost',"@"+id+" ");
@@ -138,7 +179,7 @@ window.onload = function() {
 		});
 		
 		//Direct Message button
-		$(".DMbutton").bind('click',function(e){
+		$(".rightbutton").bind('click',function(e){
 			//Set postHeader, initialPost, postMode, sendTo globals
 			props.setString('postHeader',"Direct Message to "+id);
 			props.setString('initialPost',"");

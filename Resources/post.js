@@ -2,6 +2,7 @@ window.onload = function() {
 	
 	var props = Titanium.App.Properties;
 	var loggedIn = props.getBool('loggedIn');
+	var client = props.getInt('clientMode');
 	var name = props.getString('username');
 	var pass = props.getString('password');
 	var postHeader = props.getString('postHeader');
@@ -90,8 +91,14 @@ window.onload = function() {
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onload = function() {
 			var xml = this.responseXML;
-			var imageurl = xml.documentElement.getElementsByTagName("mediaurl")[0].childNodes[0];
-			tfield.value = imageurl;
+			var imageurl = xml.documentElement.getElementsByTagName("mediaurl")[0].childNodes[0].nodeValue;
+			var newval = message + imageurl;
+			Titanium.UI.createAlertDialog({
+	            title: newval,
+	            buttonNames: ['OK'],
+	        }).show();
+			tfield.value = newval;
+			tfield.update();
 		};
 		xhr.open("POST","http://twitpic.com/api/upload");
 		xhr.send({
@@ -109,49 +116,66 @@ window.onload = function() {
 		color:'#fff'
 	});
 	postbutton.addEventListener('click',function(e) {
-		var confirm = '';
-		if (mode == 0) {	//Tweet
-			confirm = "Update status?";
+		if (message == "") {
+			Titanium.UI.createAlertDialog({
+	            title: "No message!",
+				message: "Please type a message above.",
+	            buttonNames: ['OK', 'Cancel'],
+	        }).show();
 		}
-		else if (mode == 1) {	//Direct Message
-			confirm = "Send message?";
-		}
-		var postconfirm = Titanium.UI.createAlertDialog({
-            title: confirm,
-            buttonNames: ['OK', 'Cancel'],
-        });
-		postconfirm.addEventListener('click', function(k) {
-			if (k.index == 0) {
-				var url = '';
-				var sendObject = {};
-				if (mode == 0) {	//Tweet
-					url = "http://"+name+":"+pass+"@twitter.com/statuses/update.json";
-					sendObject = {"status":message};
-				}
-				else if (mode == 1) {	//Direct Message
-					url = "http://"+name+":"+pass+"@twitter.com/direct_messages/new.json";
-					sendObject = {"screen_name":sendTo,"text":message};
-				}
-				var xhr = Titanium.Network.createHTTPClient();
-				xhr.onload = function() {};
-				xhr.open("POST",url);
-				xhr.send(sendObject);
-				if (mode == 0) {
-					Titanium.UI.createAlertDialog({
-			            title: "Status Updated!",
-			            buttonNames: ['OK'],
-			        }).show();
-				}
-				else if (mode == 1) {
-					Titanium.UI.createAlertDialog({
-			            title: "Message Sent!",
-			            buttonNames: ['OK'],
-			        }).show();
-				}
-				Titanium.UI.currentWindow.close();
+		else {
+			var confirm = '';
+			if (mode == 0) {	//Tweet
+				confirm = "Update status?";
 			}
-		});
-		postconfirm.show();
+			else if (mode == 1) {	//Direct Message
+				confirm = "Send message?";
+			}
+			var postconfirm = Titanium.UI.createAlertDialog({
+	            title: confirm,
+	            buttonNames: ['OK', 'Cancel'],
+	        });
+			postconfirm.addEventListener('click', function(k) {
+				if (k.index == 0) {
+					var url = '';
+					var sendObject = {};
+					if (mode == 0) {	//Tweet
+						if (client == 0) {
+							url = "http://"+name+":"+pass+"@twitter.com/statuses/update.json";
+						} else {
+							url = "http://"+name+":"+pass+"@identi.ca/api/statuses/update.json";
+						}
+						sendObject = {"status":message};
+					}
+					else if (mode == 1) {	//Direct Message
+						if (client == 0) {
+							url = "http://"+name+":"+pass+"@twitter.com/direct_messages/new.json";
+						} else {
+							url = "http://"+name+":"+pass+"@identi.ca/api/direct_messages/new.json";
+						}
+						sendObject = {"screen_name":sendTo,"text":message};
+					}
+					var xhr = Titanium.Network.createHTTPClient();
+					xhr.onload = function() {};
+					xhr.open("POST",url);
+					xhr.send(sendObject);
+					if (mode == 0) {
+						Titanium.UI.createAlertDialog({
+				            title: "Status Updated!",
+				            buttonNames: ['OK'],
+				        }).show();
+					}
+					else if (mode == 1) {
+						Titanium.UI.createAlertDialog({
+				            title: "Message Sent!",
+				            buttonNames: ['OK'],
+				        }).show();
+					}
+					Titanium.UI.currentWindow.close();
+				}
+			});
+			postconfirm.show();
+		}
 	});
 	
 	//Cancel button

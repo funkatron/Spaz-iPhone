@@ -1,6 +1,6 @@
 function getAccounts() {	//Main function, called below
 	
-	//Edit button
+	// Edit button
 	var editbutton = Titanium.UI.createButton({
 		title:'Edit',
 		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
@@ -15,7 +15,7 @@ function getAccounts() {	//Main function, called below
 	
 	loggedIn = props.getBool('loggedIn');
 	
-	//Set option container height
+	// Set option container height and rowCount
 	var height;
 	if (loggedIn == false) {height = 50;}
 	else if (loggedIn == true) {height = 100;}
@@ -25,9 +25,10 @@ function getAccounts() {	//Main function, called below
 	height += rowCount*50;
 	$("#acontainer").css("height",height);
 
-	//Display Account Info
+	// Display Account Info
 	var text = '';
 	var accounts = db.execute('SELECT * FROM ACCOUNTS');
+	// Display each account button
 	for (var i = 0; i < rowCount; i++) {
 	//while (accounts.isValidRow()) {
 		text += "<div class='option'><img src='";
@@ -42,25 +43,31 @@ function getAccounts() {	//Main function, called below
 		text += "<img src='images/arrow_gray.png' class='optendimg'/></div><div class='divider'></div>";
 		accounts.next();
 	}
+	// Display Sign out button
 	if (loggedIn == true) {
 		text += "<div id='signout' class='option'><div id='signouttext' class='label'>- Sign Out</div>" +
 				"<img src='images/arrow_gray.png' class='optendimg'/></div><div class='divider'></div>";
 	}
+	// Display Add new account button
 	text += "<div id='newaccount' class='option'><div id='newaccounttext' class='label'>+ Add New Account</div>" + 
 			"<img src='images/arrow_gray.png' class='optendimg'/></div>";
+	// Set html
 	$("#acontainer").html(text);
 	accounts.close();
 
-	//Login
+	// Login
 	$(".option").bind('click',function(e){
+		// Sign out button action
 		if ($(this).is("#signout")) {
 			props.setBool('loggedIn',false);
+			props.setInt('clientMode',0);
 			Titanium.UI.createAlertDialog({
                 title: "Signed out!",
                 buttonNames: ['OK'],
             }).show();
 			Titanium.UI.currentWindow.close();
 		}
+		// New account button action
 		else if ($(this).is("#newaccount")) {
 			props.setInt('accountMode',0);
 			Titanium.UI.createWindow({
@@ -77,9 +84,16 @@ function getAccounts() {	//Main function, called below
 			}
 			var name = accounts2.fieldByName('account');
 			var pass = accounts2.fieldByName('password');
+			var client = accounts2.fieldByName('client');
 			accounts2.close();
 		
 			//Attempt login
+			var request = '';
+			if (client == 0) {
+				request = "http://"+name+":"+pass+"@twitter.com/account/verify_credentials.json";
+			} else {
+				request = "http://"+name+":"+pass+"@identi.ca/api/account/verify_credentials.json";
+			}
 			var xhr = Titanium.Network.createHTTPClient();
 			xhr.onload = function() {
 				var data = JSON.parse(this.responseText);
@@ -93,6 +107,7 @@ function getAccounts() {	//Main function, called below
 				else {
 					//Account verified, set loggedIn, account globals to true
 					props.setBool('loggedIn',true);
+					props.setInt('clientMode',client);
 					props.setString('username',name);
 					props.setString('password',pass);
 					Titanium.UI.createAlertDialog({
@@ -102,7 +117,7 @@ function getAccounts() {	//Main function, called below
 					Titanium.UI.currentWindow.close();
 				}
 			};
-			xhr.open("GET","http://"+name+":"+pass+"@twitter.com/account/verify_credentials.json");
+			xhr.open("GET",request);
 			xhr.send();
 		}
 	});
@@ -110,8 +125,9 @@ function getAccounts() {	//Main function, called below
 
 window.onload = function() {
 	
+	// Initialize
 	props = Titanium.App.Properties;
-	db = Titanium.Database.open('mydb');	//global for 'mydb'
+	db = Titanium.Database.open('mydb');
 	//db.remove();
 	
 	//If first load of accounts.js, initialize database, and try default login
@@ -131,6 +147,7 @@ window.onload = function() {
 		var rows = db.execute('SELECT COUNT(*) FROM ACCOUNTS');
 		var rowCount = rows.field(0);
 		rows.close();
+		// Check for default account
 		for (var i = 0; i < rowCount; i++) {
 		//while (accs.isValidRow()) {
 			if (accs.fieldByName('def') == 1) {
@@ -142,22 +159,29 @@ window.onload = function() {
 		if (existsDefault == true) {
 			var name = accs.fieldByName('account');
 			var pass = accs.fieldByName('password');
+			var client = accs.fieldByName('client');
 			//Attempt login
+			var request = '';
+			if (client == 0) {
+				request = "http://"+name+":"+pass+"@twitter.com/account/verify_credentials.json";
+			} else {
+				request = "http://"+name+":"+pass+"@identi.ca/api/account/verify_credentials.json";
+			}
 			var xhr2 = Titanium.Network.createHTTPClient();
 			xhr2.onload = function() {
 				var data = JSON.parse(this.responseText);
-				if (data.error == "Could not authenticate you.") {
+				if (data.error == "Could not authenticate you.") {	//Default account login failed
 					props.setInt("defaultLoginSuccess",1);	//1 = failed
 				}
-				else {
-					//Account verified, set loggedIn, account globals to true
+				else {	//Account verified, set loggedIn, account globals to true
 					props.setBool('loggedIn',true);
+					props.setInt('clientMode',client);
 					props.setString('username',name);
 					props.setString('password',pass);
 					props.setInt("defaultLoginSuccess",2);	//2 = success
 				}
 			};
-			xhr2.open("GET","http://"+name+":"+pass+"@twitter.com/account/verify_credentials.json");
+			xhr2.open("GET",request);
 			xhr2.send();
 		}
 		else {

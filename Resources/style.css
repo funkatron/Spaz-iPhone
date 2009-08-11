@@ -376,12 +376,12 @@ ctext {
 	float:left;
 }
 
-.replybutton {
+.leftbutton {
 	margin-left:10px;
 	margin-right:5px;
 }
 
-.DMbutton {
+.rightbutton {
 	margin-left:5px;
 	margin-right:10px;
 }

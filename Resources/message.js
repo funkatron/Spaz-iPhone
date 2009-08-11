@@ -9,6 +9,13 @@ window.onload = function() {
 		$(".hidden").css("display","inline");
 		var name = props.getString('username');
 		var pass = props.getString('password');
+		var client = props.getInt('clientMode');
+		var request = '';
+		if (client == 0) {
+			request = "http://"+name+":"+pass+"@twitter.com/favorites.json";
+		} else {
+			request = "http://"+name+":"+pass+"@identi.ca/api/favorites.json";
+		}
 		var xhr2 = Titanium.Network.createHTTPClient();
 		xhr2.onload = function() {
 			var data2 = JSON.parse(this.responseText);
@@ -26,7 +33,7 @@ window.onload = function() {
 				$("#favorite").children(".label").text("Add as a favorite");
 			}
 		}
-		xhr2.open("GET","http://"+name+":"+pass+"@twitter.com/favorites.json");
+		xhr2.open("GET",request);
 		xhr2.send();
 	}
 	else {
@@ -36,20 +43,46 @@ window.onload = function() {
 	var id;
 
 	function getMessageDetails() {
-		$.getJSON("http://twitter.com/statuses/show/"+encodeURIComponent(msgID)+".json?callback=?", function(data){
+		var request = '';
+		if (client == 0) {
+			request = "http://twitter.com/statuses/show/"+msgID+".json";
+		} else {
+			request = "http://identi.ca/api/statuses/show/"+msgID+".json";
+		}
+		var xhr2 = Titanium.Network.createHTTPClient();
+		xhr2.onload = function() {
+			var data = JSON.parse(this.responseText);
 			$(".usrimg").attr("src",data.user.profile_image_url);
 			$(".usrname").html(data.user.screen_name);
 			var link = /http:\/\/\S+/gi;
+			var mention = /@\w+/gi;
 			$(".usrmsgdetail").html(data.text.replace(link, function(exp) {
-				return ("<lnk>"+exp+"</lnk>");
-			}));
+					return ("<lnk>"+exp+"</lnk>");
+				}).replace(mention, function(exp) {
+					return ("<usr>"+exp+"</usr>");
+				})
+			);
 			$(".msgstamp").html("Posted <heavy>"+humane_date(data.created_at)+"</heavy> from <heavy>"+data.source+"</heavy>");
 			id = encodeURIComponent(data.user.screen_name);
 			//Links
 			$("lnk").bind('click',function(){
 				Titanium.Platform.openURL($(this).text());
 			});
-		});
+			//Mentions
+			$("usr").bind('click',function(e){
+				e.stopPropagation();
+				//Set user ID global
+				props.setString('screenname',$(this).text().substring(1));
+				//User detail view
+				Titanium.UI.createWindow({
+					url:'user.html',
+					barColor:'#423721',
+				}).open();
+				return false;
+			});
+		}
+		xhr2.open("GET",request);
+		xhr2.send();		
 	};
 	
 	getMessageDetails();
@@ -68,9 +101,15 @@ window.onload = function() {
 	        });
 			blockconfirm.addEventListener('click', function(k) {
 				if (k.index == 0) {
+					var request = '';
+					if (client == 0) {
+						request = "http://"+name+":"+pass+"@twitter.com/blocks/create/"+encodeURIComponent(id)+".json";
+					} else {
+						request = "http://"+name+":"+pass+"@identi.ca/api/blocks/create/"+encodeURIComponent(id)+".json";
+					}
 					var xhr = Titanium.Network.createHTTPClient();
 					xhr.onload = function() {};
-					xhr.open("POST","http://"+name+":"+pass+"@twitter.com/blocks/create/"+encodeURIComponent(id)+".json");
+					xhr.open("POST",request);
 					xhr.send();
 					Titanium.UI.currentWindow.close();
 				}
@@ -80,7 +119,7 @@ window.onload = function() {
 		Titanium.UI.currentWindow.setRightNavButton(blockbutton);
 		
 		//Reply button
-		$(".replybutton").bind('click',function(e){
+		$(".leftbutton").bind('click',function(e){
 			//Set postHeader, initialPost, postMode globals
 			props.setString('postHeader',"RE: "+$(".usrmsgdetail").html());
 			props.setString('initialPost',"@"+id+" ");
@@ -93,7 +132,7 @@ window.onload = function() {
 		});
 
 		//Direct Message button
-		$(".DMbutton").bind('click',function(e){
+		$(".rightbutton").bind('click',function(e){
 			//Set postHeader, initialPost, postMode, sendTo globals
 			props.setString('postHeader',"Direct Message to "+id);
 			props.setString('initialPost',"");
@@ -123,24 +162,37 @@ window.onload = function() {
 		//Favorite button
 		$("#favorite").bind('click',function(e){
 			if (isFavorite == false) {
+				var request = '';
+				if (client == 0) {
+					request = "http://"+name+":"+pass+"@twitter.com/favorites/create/"+encodeURIComponent(msgID)+".json";
+				} else {
+					request = "http://"+name+":"+pass+"@identi.ca/api/favorites/create/"+encodeURIComponent(msgID)+".json";
+				}
 				var xhr = Titanium.Network.createHTTPClient();
 				xhr.onload = function() {
 					isFavorite = true;
 					$("#favicon").animate({opacity:"1"},1000);
 					$("#favorite").children(".label").text("Remove from favorites");
 				};
-				xhr.open("POST","http://"+name+":"+pass+"@twitter.com/favorites/create/"+encodeURIComponent(msgID)+".json");
+				xhr.open("POST",request);
 				xhr.send();
 			}
 			else {
-				var xhr = Titanium.Network.createHTTPClient();
-				xhr.onload = function() {
-					isFavorite = false;
-					$("#favicon").animate({opacity:"0"},1000);
-					$("#favorite").children(".label").text("Add as a favorite");
-				};
-				xhr.open("POST","http://"+name+":"+pass+"@twitter.com/favorites/destroy/"+encodeURIComponent(msgID)+".json");
-				xhr.send();
+				if (client == 0) {
+					var xhr = Titanium.Network.createHTTPClient();
+					xhr.onload = function() {
+						isFavorite = false;
+						$("#favicon").animate({opacity:"0"},1000);
+						$("#favorite").children(".label").text("Add as a favorite");
+					};
+					xhr.open("POST","http://"+name+":"+pass+"@twitter.com/favorites/destroy/"+encodeURIComponent(msgID)+".json");
+					xhr.send();
+				} else {
+					Titanium.UI.createAlertDialog({
+			            title: "Laconica currently does not support removing favorites. Sorry!",
+			            buttonNames: ['OK'],
+			        }).show();
+				}
 			}
 		});
 	}

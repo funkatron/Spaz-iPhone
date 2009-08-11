@@ -12,6 +12,7 @@ window.onload = function() {
 	props.setString('postHeader','');
 	props.setString('initialPost','');
 	props.setString('accName','');
+	props.setInt('clientMode',0); // 0 = Twitter, 1 = Identi.ca
 	props.setInt('inboxMode',0);
 	props.setInt('postMode',0);
 	props.setInt('accountMode',0);
@@ -35,21 +36,38 @@ window.onload = function() {
 		$("#tcontainer").empty();
 		var request = "";
 		var loggedIn = props.getBool('loggedIn');
+		var client = props.getInt('clientMode');
 		var mode = props.getInt('inboxMode');
 		if (loggedIn == false) {
-			request = "http://twitter.com/statuses/public_timeline.json";
+			if (client == 0) {
+				request = "http://twitter.com/statuses/public_timeline.json";
+			} else {
+				request = "http://identi.ca/api/statuses/public_timeline.json";
+			}
 		}
 		else if (loggedIn == true) {
 			var name = props.getString('username');
 			var pass = props.getString('password');
 			if (mode == 0) { 	//All
-				request = "http://"+name+":"+pass+"@twitter.com/statuses/friends_timeline.json";
+				if (client == 0) {
+					request = "http://"+name+":"+pass+"@twitter.com/statuses/friends_timeline.json";
+				} else {
+					request = "http://"+name+":"+pass+"@identi.ca/api/statuses/friends_timeline.json";
+				}
 			}
 			else if (mode == 1) { 	//Replies
-				request = "http://"+name+":"+pass+"@twitter.com/statuses/mentions.json";
+				if (client == 0) {
+					request = "http://"+name+":"+pass+"@twitter.com/statuses/mentions.json";
+				} else {
+					request = "http://"+name+":"+pass+"@identi.ca/api/statuses/mentions.json";
+				}
 			}
 			else if (mode == 2) { 	//Direct Messages
-				request = "http://"+name+":"+pass+"@twitter.com/direct_messages.json";
+				if (client == 0) {
+					request = "http://"+name+":"+pass+"@twitter.com/direct_messages.json";
+				} else {
+					request = "http://"+name+":"+pass+"@identi.ca/api/direct_messages.json";
+				}
 			}
 		}
 		var xhr = Titanium.Network.createHTTPClient();
