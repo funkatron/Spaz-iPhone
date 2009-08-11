@@ -124,8 +124,6 @@ window.onload = function() {
 		//DEFAULT: 0 = NO, 1 = YES
 		//db.execute('DROP TABLE ACCOUNTS');
 		db.execute('CREATE TABLE IF NOT EXISTS ACCOUNTS (CLIENT INTEGER, ACCOUNT TEXT, PASSWORD TEXT, DEF INTEGER)');
-		//Add one temp account until bug with 0 entries fixed
-		//db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF) VALUES(?,?,?,?)',0,'asdf','zxcv',0);
 	
 		//Login default account if exists
 		var accs = db.execute('SELECT * FROM ACCOUNTS');

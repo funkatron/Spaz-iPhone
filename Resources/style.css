@@ -88,6 +88,17 @@ img.centeredimg {
 	text-overflow:ellipsis;
 }
 
+.DMmsg {
+	margin-left:15px;
+	height:48px;
+	width:235px;
+	float:left;
+	color:#fff;
+	font-size:13px;
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
 .usrmsgdetail {
 	margin-left:15px;
 	height:64px;
@@ -167,6 +178,10 @@ hilite {
 }
 
 lnk {
+	color:#ffd200;
+}
+
+usr {
 	color:#ffd200;
 }
 

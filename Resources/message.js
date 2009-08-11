@@ -3,22 +3,35 @@ window.onload = function() {
 	//Initialize
 	props = Titanium.App.Properties;
 	var msgID = props.getString('msgID');
-	if (props.getBool('isFavorite') == true) {
-		$("#favicon").css("opacity","1");
-		$("#favorite").children(".label").text("Remove from favorites");
-	}
-	else {
-		$("#favicon").css("opacity","0");
-		$("#favorite").children(".label").text("Add as a favorite");
-	}
 	var loggedIn = props.getBool('loggedIn');
+	var isFavorite = false;
 	if (loggedIn == true) {
 		$(".hidden").css("display","inline");
 		var name = props.getString('username');
 		var pass = props.getString('password');
+		var xhr2 = Titanium.Network.createHTTPClient();
+		xhr2.onload = function() {
+			var data2 = JSON.parse(this.responseText);
+			$.each(data2, function(j,tweet2){
+				if (tweet2.id == msgID) {
+					isFavorite = true;
+				}
+			});
+			if (isFavorite == true) {
+				$("#favicon").css("opacity","1");
+				$("#favorite").children(".label").text("Remove from favorites");
+			}
+			else {
+				$("#favicon").css("opacity","0");
+				$("#favorite").children(".label").text("Add as a favorite");
+			}
+		}
+		xhr2.open("GET","http://"+name+":"+pass+"@twitter.com/favorites.json");
+		xhr2.send();
 	}
 	else {
 		$(".hidden").css("display","none");
+		$("#favicon").css("opacity","0");
 	}
 	var id;
 
@@ -109,37 +122,28 @@ window.onload = function() {
 
 		//Favorite button
 		$("#favorite").bind('click',function(e){
-			var isFavorite = props.getBool('isFavorite');
 			if (isFavorite == false) {
 				var xhr = Titanium.Network.createHTTPClient();
 				xhr.onload = function() {
-					Titanium.UI.createAlertDialog({
-						title:'Added to Favorites!',
-						buttonNames: ['OK'],
-					}).show();
+					isFavorite = true;
+					$("#favicon").animate({opacity:"1"},1000);
+					$("#favorite").children(".label").text("Remove from favorites");
 				};
 				xhr.open("POST","http://"+name+":"+pass+"@twitter.com/favorites/create/"+encodeURIComponent(msgID)+".json");
 				xhr.send();
-				props.setBool('isFavorite',true);
-				$("#favicon").animate({opacity:"1"},1000);
-				$("#favorite").children(".label").text("Remove from favorites");
 			}
 			else {
 				var xhr = Titanium.Network.createHTTPClient();
 				xhr.onload = function() {
-					Titanium.UI.createAlertDialog({
-						title:'Removed from Favorites!',
-						buttonNames: ['OK'],
-					}).show();
+					isFavorite = false;
+					$("#favicon").animate({opacity:"0"},1000);
+					$("#favorite").children(".label").text("Add as a favorite");
 				};
 				xhr.open("POST","http://"+name+":"+pass+"@twitter.com/favorites/destroy/"+encodeURIComponent(msgID)+".json");
 				xhr.send();
-				props.setBool('isFavorite',false);
-				$("#favicon").animate({opacity:"0"},1000);
-				$("#favorite").children(".label").text("Add as a favorite");
 			}
 		});
-	};
+	}
 	
 	
 

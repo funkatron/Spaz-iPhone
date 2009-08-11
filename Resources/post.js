@@ -46,6 +46,60 @@ window.onload = function() {
 		width:32,
 		style:Titanium.UI.iPhone.SystemButtonStyle.DONE ,
 	});
+	photobutton.addEventListener('click',function(e) {
+		var camoption = Titanium.UI.createOptionDialog();
+		camoption.setTitle("Choose a picture source");
+		camoption.setOptions(["Picture gallery","Take a picture","Cancel"]);
+		camoption.setCancel(2);
+		camoption.addEventListener('click',function(k) {
+			if (k.index == 0) {
+				Titanium.Media.openPhotoGallery({
+					success: function(image,details) {
+						postImg(image);
+					},
+					error: function(e) {
+						Titanium.UI.createAlertDialog({
+							title:'Whoops!',
+							message:'There was a problem with your photo gallery.'
+						}).show();
+					},
+					cancel: function() {},
+					allowImageEditing:true
+				});
+			}
+			else if (k.index == 1) {
+				Titanium.Media.showCamera({
+					success: function(image,details) {
+						postImg(image);
+					},
+					error: function(e) {
+						Titanium.UI.createAlertDialog({
+							title:'Whoops!',
+							message:'There was a problem with your device camera.'
+						}).show();
+					},
+					cancel: function() {},
+					allowImageEditing:true
+				});
+			}
+		});
+		camoption.show();
+	});
+	
+	function postImg(image) {
+		var xhr = Titanium.Network.createHTTPClient();
+		xhr.onload = function() {
+			var xml = this.responseXML;
+			var imageurl = xml.documentElement.getElementsByTagName("mediaurl")[0].childNodes[0];
+			tfield.value = imageurl;
+		};
+		xhr.open("POST","http://twitpic.com/api/upload");
+		xhr.send({
+			media:image,
+			username:name,
+			password:pass
+		});
+	};
 	
 	//Post button
 	var postbutton = Titanium.UI.createButton({

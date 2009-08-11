@@ -10,6 +10,7 @@ function getFavorites() {
 			var text = '';
 			var count = 0;
 			var link = /http:\/\/\S+/gi;
+			var mention = /@\w+/gi;
 			$.each(data, function(i,tweet){
 				text += "<div id='" +
 					tweet.id +
@@ -30,6 +31,8 @@ function getFavorites() {
 				"</div><div class='usrmsg'>" +
 					tweet.text.replace(link, function(exp) {
 							return ("<lnk>"+exp+"</lnk>");
+						}).replace(mention, function(exp) {
+							return ("<usr>"+exp+"</usr>");
 						}) +
 				"</div></div>";
 				count++;
@@ -58,6 +61,18 @@ function getFavorites() {
 			$("lnk").bind('click',function(){
 				Titanium.Platform.openURL($(this).text());
 				e.stopPropagation();
+				return false;
+			});
+			//Mentions
+			$("usr").bind('click',function(e){
+				e.stopPropagation();
+				//Set user ID global
+				props.setString('screenname',$(this).text().substring(1));
+				//User detail view
+				Titanium.UI.createWindow({
+					url:'user.html',
+					barColor:'#423721',
+				}).open();
 				return false;
 			});
 		}

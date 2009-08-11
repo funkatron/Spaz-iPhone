@@ -31,6 +31,7 @@ window.onload = function() {
 			var text = '';
 			var count = 0;
 			var link = /http:\/\/\S+/gi;
+			var mention = /@\w+/gi;
 			if (mode == 0) {	//Search
 				var keyword = new RegExp(query,"gi");
 				$.each(data.results, function(i,tweet){
@@ -55,6 +56,8 @@ window.onload = function() {
 								return ("<hilite>"+exp+"</hilite>");
 							}).replace(link, function(exp) {
 								return ("<lnk>"+exp+"</lnk>");
+							}).replace(mention, function(exp) {
+								return ("<usr>"+exp+"</usr>");
 							}) +
 					"</div></div>";
 					count++;
@@ -81,6 +84,8 @@ window.onload = function() {
 					"</div><div class='usrmsg'>" +
 						tweet.text.replace(link, function(exp) {
 							return ("<lnk>"+exp+"</lnk>");
+						}).replace(mention, function(exp) {
+							return ("<usr>"+exp+"</usr>");
 						}) +
 					"</div></div>";
 					count++;
@@ -91,38 +96,27 @@ window.onload = function() {
 			$(".usrmsg").bind('click',function(e){
 				//Set message ID global
 				props.setString('msgID',$(this).parent(".status").attr("id"));
-				//Check if message is a favorite
-				props.setBool('isFavorite',false);
-				if (loggedIn == true) {
-					var name = props.getString('username');
-					var pass = props.getString('password');
-					var xhr2 = Titanium.Network.createHTTPClient();
-					xhr2.onload = function() {
-						var data2 = JSON.parse(this.responseText);
-						$.each(data2, function(j,tweet2){
-							if (tweet2.id == props.getString('msgID')) {
-								props.setBool('isFavorite',true);
-							}
-						});
-						Titanium.UI.createWindow({
-							url:'message.html',
-							barColor:'#423721',
-						}).open();
-					}
-					xhr2.open("GET","http://"+name+":"+pass+"@twitter.com/favorites.json");
-					xhr2.send();
-				}
-				else {
-					Titanium.UI.createWindow({
-						url:'message.html',
-						barColor:'#423721',
-					}).open();
-				}
+				Titanium.UI.createWindow({
+					url:'message.html',
+					barColor:'#423721',
+				}).open();
 			});
 			//Links
-			$("lnk").bind('click',function(){
+			$("lnk").bind('click',function(e){
 				Titanium.Platform.openURL($(this).text());
 				e.stopPropagation();
+				return false;
+			});
+			//Mentions
+			$("usr").bind('click',function(e){
+				e.stopPropagation();
+				//Set user ID global
+				props.setString('screenname',$(this).text().substring(1));
+				//User detail view
+				Titanium.UI.createWindow({
+					url:'user.html',
+					barColor:'#423721',
+				}).open();
 				return false;
 			});
 		};
@@ -149,61 +143,69 @@ window.onload = function() {
 	});
 	Titanium.UI.currentWindow.setRightNavButton(refreshbutton);
 	
+	//Shake refresh event
+	Titanium.Gesture.addEventListener('shake',function(e) {
+		getResults();
+	});
+	
 	//Add Save Search button
 	if (loggedIn == true) {
 		var name = props.getString('username');
 		var pass = props.getString('password');
+		var searchID;
+		
+		//Declare both buttons
+		//Save search button
+		var savebutton = Titanium.UI.createButton({
+			image:'images/button_icon_add.png',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
+		});
+		savebutton.addEventListener('click',function(e){
+			var saveconfirm = Titanium.UI.createAlertDialog({
+	            title: "Are you sure you want to save search \""+query+"\"?",
+	            buttonNames: ['OK', 'Cancel'],
+	        });
+			saveconfirm.addEventListener('click',function(k){
+				if (k.index == 0) {
+					var xhr4 = Titanium.Network.createHTTPClient();
+					xhr4.onload = function() {
+						Titanium.UI.currentWindow.setRightNavButton(removebutton);
+					};
+					xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/create.json");
+					xhr4.send({"query":query});
+				}
+			});
+			saveconfirm.show();
+		});
+		
+		//Remove search button
+		var removebutton = Titanium.UI.createButton({
+			image:'images/button_icon_remove.png',
+			style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
+		});
+		removebutton.addEventListener('click',function(e){
+			var removeconfirm = Titanium.UI.createAlertDialog({
+	            title: "Are you sure you want to remove search \""+query+"\"?",
+	            buttonNames: ['OK', 'Cancel'],
+	        });
+			removeconfirm.addEventListener('click',function(k){
+				if (k.index == 0) {
+					var xhr4 = Titanium.Network.createHTTPClient();
+					xhr4.onload = function() {
+						Titanium.UI.currentWindow.setRightNavButton(savebutton);
+					};
+					xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/destroy/"+searchID+".json");
+					xhr4.send();
+				}
+			});
+			removeconfirm.show();
+		});
+		
 		var xhr3 = Titanium.Network.createHTTPClient();
 		xhr3.onload = function() {
-			//Declare both buttons
-			//Save search button
-			var savebutton = Titanium.UI.createButton({
-				image:'images/button_icon_add.png',
-				style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
-			});
-			savebutton.addEventListener('click',function(e){
-				var saveconfirm = Titanium.UI.createAlertDialog({
-		            title: "Are you sure you want to save search \""+query+"\"?",
-		            buttonNames: ['OK', 'Cancel'],
-		        });
-				saveconfirm.addEventListener('click',function(k){
-					if (k.index == 0) {
-						var xhr4 = Titanium.Network.createHTTPClient();
-						xhr4.onload = function() {
-							Titanium.UI.currentWindow.setRightNavButton(removebutton);
-						};
-						xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/create.json");
-						xhr4.send({"query":query});
-					}
-				});
-				saveconfirm.show();
-			});
-			//Remove search button
-			var removebutton = Titanium.UI.createButton({
-				image:'images/button_icon_remove.png',
-				style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
-			});
-			removebutton.addEventListener('click',function(e){
-				var removeconfirm = Titanium.UI.createAlertDialog({
-		            title: "Are you sure you want to remove search \""+query+"\"?",
-		            buttonNames: ['OK', 'Cancel'],
-		        });
-				removeconfirm.addEventListener('click',function(k){
-					if (k.index == 0) {
-						var xhr4 = Titanium.Network.createHTTPClient();
-						xhr4.onload = function() {
-							Titanium.UI.currentWindow.setRightNavButton(savebutton);
-						};
-						xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/destroy/"+searchID+".json");
-						xhr4.send();
-					}
-				});
-				removeconfirm.show();
-			});
 			//Check if this is already a saved search query
 			var data3 = JSON.parse(this.responseText);
 			var searchSaved = false;
-			var searchID;
 			$.each(data3, function(j,tweet3){
 				if (tweet3.query == query) {
 					searchSaved = true;

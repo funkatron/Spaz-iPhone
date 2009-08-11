@@ -4,7 +4,6 @@ window.onload = function() {
 	props = Titanium.App.Properties;	//pointer to globals
 	props.setBool('loggedIn', false);
 	props.setBool('initial',true);
-	props.setBool('isFavorite',false);
 	props.setString('username','');
 	props.setString('password','');
 	props.setString('searchQuery','');
@@ -59,6 +58,7 @@ window.onload = function() {
 			var text = '';
 			var count = 0;
 			var link = /http:\/\/\S+/gi;
+			var mention = /@\w+/gi;
 			if (mode == 0 || mode == 1) {	//All, Replies
 				$.each(data, function(i,tweet){
 					text += "<div id='" +
@@ -80,6 +80,8 @@ window.onload = function() {
 					"</div><div class='usrmsg'>" +
 						tweet.text.replace(link, function(exp) {
 							return ("<lnk>"+exp+"</lnk>");
+						}).replace(mention, function(exp) {
+							return ("<usr>"+exp+"</usr>");
 						}) +
 					"</div></div>";
 					count++;
@@ -90,12 +92,7 @@ window.onload = function() {
 					text += "<div id='" +
 						tweet.id + 
 					"' class='status' style='background-image:url(\"";
-					if (tweet.sender_screen_name == props.getString('username')) {
-						if (loggedIn == true) {
-							{text += "images/BG_red_sliver.png";}
-						}
-					}
-					else if (count % 2 == 0) {text += "images/BG_dark_sliver.png";}
+					if (count % 2 == 0) {text += "images/BG_dark_sliver.png";}
 					else if (count % 2 == 1) {text += "images/BG_light_sliver.png";}
 					text += "\");'><img src='" +
 						tweet.sender.profile_image_url + 
@@ -103,9 +100,11 @@ window.onload = function() {
 						tweet.sender_screen_name + 
 					"</div><div class='usrtime'>" +
 						humane_date(tweet.created_at) +
-					"</div><div class='usrmsg'>" +
+					"</div><div class='DMmsg'>" +
 						tweet.text.replace(link, function(exp) {
 							return ("<lnk>"+exp+"</lnk>");
+						}).replace(mention, function(exp) {
+							return ("<usr>"+exp+"</usr>");
 						}) +
 					"</div></div>";
 					count++;
@@ -116,38 +115,38 @@ window.onload = function() {
 			$(".usrmsg").bind('click',function(e){
 				//Set message ID global
 				props.setString('msgID',$(this).parent(".status").attr("id"));
-				//Check if message is a favorite
-				props.setBool('isFavorite',false);
-				if (loggedIn == true) {
-					var name = props.getString('username');
-					var pass = props.getString('password');
-					var xhr2 = Titanium.Network.createHTTPClient();
-					xhr2.onload = function() {
-						var data2 = JSON.parse(this.responseText);
-						$.each(data2, function(j,tweet2){
-							if (tweet2.id == props.getString('msgID')) {
-								props.setBool('isFavorite',true);
-							}
-						});
-						Titanium.UI.createWindow({
-							url:'message.html',
-							barColor:'#423721',
-						}).open();
-					}
-					xhr2.open("GET","http://"+name+":"+pass+"@twitter.com/favorites.json");
-					xhr2.send();
-				}
-				else {
-					Titanium.UI.createWindow({
-						url:'message.html',
-						barColor:'#423721',
-					}).open();
-				}
+				//Message detail view
+				Titanium.UI.createWindow({
+					url:'message.html',
+					barColor:'#423721',
+				}).open();
+			});
+			//Direct Message detail
+			$(".DMmsg").bind('click',function(e){
+				//Set message ID global
+				props.setString('msgID',$(this).parent(".status").attr("id"));
+				//Message detail view
+				Titanium.UI.createWindow({
+					url:'DM.html',
+					barColor:'#423721',
+				}).open();
 			});
 			//Links
 			$("lnk").bind('click',function(e){
 				Titanium.Platform.openURL($(this).text());
 				e.stopPropagation();
+				return false;
+			});
+			//Mentions
+			$("usr").bind('click',function(e){
+				e.stopPropagation();
+				//Set user ID global
+				props.setString('screenname',$(this).text().substring(1));
+				//User detail view
+				Titanium.UI.createWindow({
+					url:'user.html',
+					barColor:'#423721',
+				}).open();
 				return false;
 			});
 		};
@@ -192,7 +191,7 @@ window.onload = function() {
 	//Tool Bar
 		//Timeline Tabbed bar
 		var tabbar = Titanium.UI.createTabbedBar({
-			index:0,
+			index:props.getInt('inboxMode'),
 			labels:['All','Replies','DM\'s'],
 			backgroundColor:'#423721'
 		});
@@ -222,16 +221,21 @@ window.onload = function() {
 		    systemButton:Titanium.UI.iPhone.SystemButton.FLEXIBLE_SPACE
 		});
 
+	//Shake refresh event
+	Titanium.Gesture.addEventListener('shake',function(e) {
+		getTimeline();
+	});
+		
 	//Refresh timeline on focus
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
 		getTimeline();
 		//Show toolbar only if logged in.
-		if (props.getBool('loggedIn') == true) {
+		if (props.getBool('loggedIn') == true)
 			Titanium.UI.currentWindow.setToolbar([tabbar,flexSpace,newmsgbutton]);	
-		}
 		else {
 			Titanium.UI.currentWindow.setToolbar(null);
 		}
+
 	});
 
 };

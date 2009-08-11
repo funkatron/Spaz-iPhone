@@ -17,6 +17,8 @@
 - (NSData*) resolveAppAsset:(NSURL*)url;
 - (NSData*) pageNamedAccounts;
 - (NSData*) scriptNamedAccounts;
+- (NSData*) pageNamedDM;
+- (NSData*) scriptNamedDM;
 - (NSData*) pageNamedEditaccounts;
 - (NSData*) scriptNamedEditaccounts;
 - (NSData*) pageNamedFavorites;
