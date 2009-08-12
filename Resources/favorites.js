@@ -4,7 +4,7 @@ function getFavorites() {
 		$("#fcontainer").empty();
 		var name = props.getString('username');
 		var pass = props.getString('password');
-		var client = props.getString('client');
+		var client = props.getInt('clientMode');
 		var request = '';
 		if (client == 0) {
 			request = "http://"+name+":"+pass+"@twitter.com/favorites.json";
@@ -16,8 +16,8 @@ function getFavorites() {
 			var data = JSON.parse(this.responseText);
 			var text = '';
 			var count = 0;
-			var link = /http:\/\/\S+/gi;
-			var mention = /@\w+/gi;
+			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/gi;
+			var mention = /@\w{1,15}/gi;
 			$.each(data, function(i,tweet){
 				text += "<div id='" +
 					tweet.id +
@@ -65,7 +65,7 @@ function getFavorites() {
 				}).open();
 			});
 			//Links
-			$("lnk").bind('click',function(){
+			$("lnk").bind('click',function(e){
 				Titanium.Platform.openURL($(this).text());
 				e.stopPropagation();
 				return false;

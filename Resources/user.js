@@ -4,10 +4,10 @@ window.onload = function() {
 	props = Titanium.App.Properties;
 	var id = props.getString('screenname');
 	var loggedIn = props.getBool('loggedIn');
+	var client = props.getInt('clientMode');
 	if (loggedIn == true) {
 		var name = props.getString('username');
 		var pass = props.getString('password');
-		var client = props.getInt('clientMode');
 		$(".hidden").css("display","inline");
 		//Check if you follow this user
 		var follow;
@@ -140,7 +140,7 @@ window.onload = function() {
 				if (client == 0) {
 					request = "http://"+name+":"+pass+"@twitter.com/friendships/destroy.json?screen_name="+encodeURIComponent(id);
 				} else {
-					request = "http://"+name+":"+pass+"@identi.ca/api/friendships/destroy.json?screen_name="+encodeURIComponent(id);
+					request = "http://"+name+":"+pass+"@identi.ca/api/friendships/destroy/"+encodeURIComponent(id)+".json";
 				}
 				var xhr = Titanium.Network.createHTTPClient();
 				xhr.onload = function() {};
@@ -154,7 +154,7 @@ window.onload = function() {
 				if (client == 0) {
 					request = "http://"+name+":"+pass+"@twitter.com/friendships/create.json?screen_name="+encodeURIComponent(id);
 				} else {
-					request = "http://"+name+":"+pass+"@identi.ca/api/friendships/create.json?screen_name="+encodeURIComponent(id);
+					request = "http://"+name+":"+pass+"@identi.ca/api/friendships/create/"+encodeURIComponent(id)+".json";
 				}
 				var xhr = Titanium.Network.createHTTPClient();
 				xhr.onload = function() {};

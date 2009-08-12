@@ -3,6 +3,7 @@ function getTrends() {
 	if (props.getBool('loggedIn') == true && props.getInt('clientMode') == true) {	//logged on to Identica
 		$(".header").text("Laconica currently does not support trends. Sorry!");
 	} else {
+		$(".header").text("Current Trends on Twitter");
 		// //Get current trend data
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onload = function() {

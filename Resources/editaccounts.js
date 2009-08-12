@@ -12,7 +12,6 @@ function editAccounts() {
 	var text = '';
 	var accounts = db.execute('SELECT * FROM ACCOUNTS');
 	for (var i = 0; i < rowCount; i++) {
-	//while (accounts.isValidRow()) {
 		text += "<img src='images/delete.png' class='editicon del'/><div class='option'><img src='";
 		if (accounts.fieldByName('client') == 0) {text += "images/twitter.png";}
 		else if (accounts.fieldByName('client') == 1) {text += "images/identica.png";}

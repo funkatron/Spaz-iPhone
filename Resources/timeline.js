@@ -75,8 +75,8 @@ window.onload = function() {
 			var data = JSON.parse(this.responseText);
 			var text = '';
 			var count = 0;
-			var link = /http:\/\/\S+/gi;
-			var mention = /@\w+/gi;
+			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/gi;
+			var mention = /@\w{1,15}/gi;
 			if (mode == 0 || mode == 1) {	//All, Replies
 				$.each(data, function(i,tweet){
 					text += "<div id='" +
@@ -207,17 +207,6 @@ window.onload = function() {
 		});
 
 	//Tool Bar
-		//Timeline Tabbed bar
-		var tabbar = Titanium.UI.createTabbedBar({
-			index:props.getInt('inboxMode'),
-			labels:['All','Replies','DM\'s'],
-			backgroundColor:'#423721'
-		});
-		tabbar.addEventListener('click',function(e){
-			props.setInt('inboxMode',e.index);
-			getTimeline();
-		})
-
 		//Post new tweet button
 		var newmsgbutton = Titanium.UI.createButton({
 		    image:'images/button_icon_post.png',
@@ -246,13 +235,25 @@ window.onload = function() {
 		
 	//Refresh timeline on focus
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
-		getTimeline();
+		
 		//Show toolbar only if logged in.
-		if (props.getBool('loggedIn') == true)
+		if (props.getBool('loggedIn') == true) {
+			//Timeline Tabbed bar (created on refresh to properly set index)
+			var tabbar = Titanium.UI.createTabbedBar({
+				index:props.getInt('inboxMode'),
+				labels:['All','Replies','DM\'s'],
+				backgroundColor:'#423721'
+			});
+			tabbar.addEventListener('click',function(e){
+				props.setInt('inboxMode',e.index);
+				getTimeline();
+			});
 			Titanium.UI.currentWindow.setToolbar([tabbar,flexSpace,newmsgbutton]);	
+		}
 		else {
 			Titanium.UI.currentWindow.setToolbar(null);
 		}
+		getTimeline();
 
 	});
 

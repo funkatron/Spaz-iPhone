@@ -4,12 +4,12 @@ window.onload = function() {
 	props = Titanium.App.Properties;
 	var msgID = props.getString('msgID');
 	var loggedIn = props.getBool('loggedIn');
+	var client = props.getInt('clientMode');
 	var isFavorite = false;
 	if (loggedIn == true) {
 		$(".hidden").css("display","inline");
 		var name = props.getString('username');
 		var pass = props.getString('password');
-		var client = props.getInt('clientMode');
 		var request = '';
 		if (client == 0) {
 			request = "http://"+name+":"+pass+"@twitter.com/favorites.json";
@@ -54,8 +54,8 @@ window.onload = function() {
 			var data = JSON.parse(this.responseText);
 			$(".usrimg").attr("src",data.user.profile_image_url);
 			$(".usrname").html(data.user.screen_name);
-			var link = /http:\/\/\S+/gi;
-			var mention = /@\w+/gi;
+			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/gi;
+			var mention = /@\w{1,15}/gi;
 			$(".usrmsgdetail").html(data.text.replace(link, function(exp) {
 					return ("<lnk>"+exp+"</lnk>");
 				}).replace(mention, function(exp) {
@@ -121,7 +121,7 @@ window.onload = function() {
 		//Reply button
 		$(".leftbutton").bind('click',function(e){
 			//Set postHeader, initialPost, postMode globals
-			props.setString('postHeader',"RE: "+$(".usrmsgdetail").html());
+			props.setString('postHeader',"RE: "+$(".usrmsgdetail").text());
 			props.setString('initialPost',"@"+id+" ");
 			props.setInt('postMode',0);
 			Titanium.UI.createWindow({

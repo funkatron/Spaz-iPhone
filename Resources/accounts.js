@@ -30,7 +30,6 @@ function getAccounts() {	//Main function, called below
 	var accounts = db.execute('SELECT * FROM ACCOUNTS');
 	// Display each account button
 	for (var i = 0; i < rowCount; i++) {
-	//while (accounts.isValidRow()) {
 		text += "<div class='option'><img src='";
 		if (accounts.fieldByName('client') == 0) {text += "images/twitter.png";}
 		else if (accounts.fieldByName('client') == 1) {text += "images/identica.png";}
@@ -61,10 +60,6 @@ function getAccounts() {	//Main function, called below
 		if ($(this).is("#signout")) {
 			props.setBool('loggedIn',false);
 			props.setInt('clientMode',0);
-			Titanium.UI.createAlertDialog({
-                title: "Signed out!",
-                buttonNames: ['OK'],
-            }).show();
 			Titanium.UI.currentWindow.close();
 		}
 		// New account button action
@@ -110,10 +105,6 @@ function getAccounts() {	//Main function, called below
 					props.setInt('clientMode',client);
 					props.setString('username',name);
 					props.setString('password',pass);
-					Titanium.UI.createAlertDialog({
-		                title: "Login successful!",
-		                buttonNames: ['OK'],
-		            }).show();
 					Titanium.UI.currentWindow.close();
 				}
 			};
@@ -149,7 +140,6 @@ window.onload = function() {
 		rows.close();
 		// Check for default account
 		for (var i = 0; i < rowCount; i++) {
-		//while (accs.isValidRow()) {
 			if (accs.fieldByName('def') == 1) {
 				existsDefault = true;
 				break;

@@ -6,17 +6,16 @@ window.onload = function() {
 	var name = props.getString('username');
 	var pass = props.getString('password');
 	var postHeader = props.getString('postHeader');
-	var initialPost = props.getString('initialPost');
 	var mode = props.getInt('postMode');
 	var sendTo = props.getString('sendTo');
-	var message = '';
+	var message = props.getString('initialPost');
 	
-	$(".postheader").html(postHeader);
+	$(".postheader").text(postHeader);
 	
 	//Text field
-	var tfield = Titanium.UI.createTextField({
+	var tfield = Titanium.UI.createTextArea({
 		id:'text_field',
-		value:initialPost,
+		value:message,
 		color:'#000',
 		backgroundColor:'#fff',
 		returnKeyType:Titanium.UI.RETURNKEY_DEFAULT,
@@ -92,13 +91,10 @@ window.onload = function() {
 		xhr.onload = function() {
 			var xml = this.responseXML;
 			var imageurl = xml.documentElement.getElementsByTagName("mediaurl")[0].childNodes[0].nodeValue;
-			var newval = message + imageurl;
-			Titanium.UI.createAlertDialog({
-	            title: newval,
-	            buttonNames: ['OK'],
-	        }).show();
-			tfield.value = newval;
+			message += imageurl;
+			tfield.value = message;
 			tfield.update();
+			$("#counter").html(140-tfield.value.length);
 		};
 		xhr.open("POST","http://twitpic.com/api/upload");
 		xhr.send({
@@ -120,7 +116,7 @@ window.onload = function() {
 			Titanium.UI.createAlertDialog({
 	            title: "No message!",
 				message: "Please type a message above.",
-	            buttonNames: ['OK', 'Cancel'],
+	            buttonNames: ['OK'],
 	        }).show();
 		}
 		else {

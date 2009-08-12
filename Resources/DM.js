@@ -20,8 +20,8 @@ window.onload = function() {
 			var data = JSON.parse(this.responseText);
 			$(".usrimg").attr("src",data[0].sender.profile_image_url);
 			$(".usrname").html(data[0].sender.screen_name);
-			var link = /http:\/\/\S+/gi;
-			var mention = /@\w+/gi;
+			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/gi;
+			var mention = /@\w{1,15}/gi;
 			$(".usrmsgdetail").html(data[0].text.replace(link, function(exp) {
 				return ("<lnk>"+exp+"</lnk>");
 				}).replace(mention, function(exp) {
