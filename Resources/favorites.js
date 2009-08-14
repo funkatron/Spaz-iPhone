@@ -16,7 +16,7 @@ function getFavorites() {
 			var data = JSON.parse(this.responseText);
 			var text = '';
 			var count = 0;
-			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/gi;
+			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 			var mention = /@\w{1,15}/gi;
 			$.each(data, function(i,tweet){
 				text += "<div id='" +

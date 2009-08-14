@@ -39,10 +39,6 @@ function editAccounts() {
 		del.addEventListener('click',function(k){
 			if (k.index == 0) {
 				db.execute("DELETE FROM ACCOUNTS WHERE ACCOUNT='"+accName+"'");
-				Titanium.UI.createAlertDialog({
-		            title: "Account deleted!",
-		            buttonNames: ['OK'],
-		        }).show();
 				Titanium.UI.currentWindow.close();
 			}
 		});

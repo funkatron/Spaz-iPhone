@@ -12,8 +12,7 @@ body {
 /************************* Search View *************************/
 
 #logo {
-	position:relative;
-	top:-300px;
+	opacity:0;
 }
 
 img.centeredimg {

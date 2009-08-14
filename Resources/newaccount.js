@@ -11,7 +11,6 @@ window.onload = function() {
 	var isDefault = false;
 	$("#checked").css("visibility","hidden");
 	$("#unchecked").css("visibility","visible");
-	
 	if (accountMode == 0) {	//New account
 		$("#tcheck").css("visibility","hidden");
 		$("#icheck").css("visibility","hidden");
@@ -115,91 +114,103 @@ window.onload = function() {
 	        }).show();
 		}
 		else {
-			var msg = "Account created!";
-			if (accountMode == 1) {msg = "Account changed!";}
-			if (isDefault == false) {
-				if (accountMode == 1) {
-					db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,0);
+			var request = '';
+			if (client == 0) {
+				request = "http://"+name+":"+pass+"@twitter.com/account/verify_credentials.json";
+			} else {
+				request = "http://"+name+":"+pass+"@identi.ca/api/account/verify_credentials.json";
+			}
+			var xhr = Titanium.Network.createHTTPClient();
+			xhr.onload = function() {
+				var data = JSON.parse(this.responseText);
+				if (data.error == "Could not authenticate you.") {
+					Titanium.UI.createAlertDialog({
+		                title: "Not a valid account",
+		                message: "Please check account data",
+		                buttonNames: ['OK'],
+		            }).show();
 				}
 				else {
-					db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF) VALUES(?,?,?,?)',client,name,pass,0);
-				}
-				Titanium.UI.createAlertDialog({
-		            title: msg,
-		            buttonNames: ['OK'],
-		        }).show();
-				Titanium.UI.currentWindow.close();
-			}
-			else if (isDefault == true) {
-				var rows = db.execute('SELECT COUNT(*) FROM ACCOUNTS');
-				var rowCount = rows.field(0);
-				rows.close();
-				var accounts2 = db.execute('SELECT * FROM ACCOUNTS');
-				var alreadyDefault = false;
-				for (var i = 0; i < rowCount; i++) {
-				//while (accounts2.isValidRow()) {
-					if (accounts2.fieldByName('def') == 1) {
-						alreadyDefault = true;
-						break;
-					}
-					accounts2.next();
-				}
-				if (alreadyDefault == true) {	//There is an existing default account
-					if (accounts2.fieldByName('account') == accName) {	//Account replacing itself, don't need to query
-						db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1);
-						Titanium.UI.createAlertDialog({
-				            title: msg,
-				            buttonNames: ['OK'],
-				        }).show();
-						accounts2.close();
+					//Account verified, set loggedIn, account globals to true
+					Titanium.UI.createAlertDialog({
+			            title: "Account created!",
+						message: "You've been signed in",
+			            buttonNames: ['OK'],
+			        }).show();
+					props.setBool('loggedIn',true);
+					props.setInt('clientMode',client);
+					props.setString('username',name);
+					props.setString('password',pass);
+					if (isDefault == false) {
+						if (accountMode == 1) {
+							db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,0);
+						}
+						else {
+							db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF) VALUES(?,?,?,?)',client,name,pass,0);
+						}
 						Titanium.UI.currentWindow.close();
 					}
-					else {
-						var replace = Titanium.UI.createAlertDialog({
-				            title: "Replace "+accounts2.fieldByName('account')+" as default account?",
-				            buttonNames: ['OK','Cancel'],
-				        });
-						replace.addEventListener('click',function(k){
-							if (k.index == 0) {
-								//Make old default account non-default
-								var tempname = accounts2.fieldByName('account');
-								db.execute("UPDATE ACCOUNTS SET DEF=? WHERE ACCOUNT='"+tempname+"'",0);
-								//Create account as normal
-								if (accountMode == 1) {
-									db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1);
-								}
-								else {
-									db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF) VALUES(?,?,?,?)',client,name,pass,1);
-								}
-								Titanium.UI.createAlertDialog({
-						            title: msg,
-						            buttonNames: ['OK'],
-						        }).show();
+					else if (isDefault == true) {
+						var rows = db.execute('SELECT COUNT(*) FROM ACCOUNTS');
+						var rowCount = rows.field(0);
+						rows.close();
+						var accounts2 = db.execute('SELECT * FROM ACCOUNTS');
+						var alreadyDefault = false;
+						for (var i = 0; i < rowCount; i++) {
+							if (accounts2.fieldByName('def') == 1) {
+								alreadyDefault = true;
+								break;
+							}
+							accounts2.next();
+						}
+						if (alreadyDefault == true) {	//There is an existing default account
+							if (accounts2.fieldByName('account') == accName) {	//Account replacing itself, don't need to query
+								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1);
 								accounts2.close();
 								Titanium.UI.currentWindow.close();
 							}
 							else {
-								accounts2.close();
+								var replace = Titanium.UI.createAlertDialog({
+						            title: "Replace "+accounts2.fieldByName('account')+" as default account?",
+						            buttonNames: ['OK','Cancel'],
+						        });
+								replace.addEventListener('click',function(k){
+									if (k.index == 0) {
+										//Make old default account non-default
+										var tempname = accounts2.fieldByName('account');
+										db.execute("UPDATE ACCOUNTS SET DEF=? WHERE ACCOUNT='"+tempname+"'",0);
+										//Create account as normal
+										if (accountMode == 1) {
+											db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1);
+										}
+										else {
+											db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF) VALUES(?,?,?,?)',client,name,pass,1);
+										}
+										accounts2.close();
+										Titanium.UI.currentWindow.close();
+									}
+									else {
+										accounts2.close();
+									}
+								});
+								replace.show();
 							}
-						});
-						replace.show();
+						}
+						else if (alreadyDefault == false) {	//No existing default account
+							if (accountMode == 1) {
+								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1);
+							}
+							else {
+								db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF) VALUES(?,?,?,?)',client,name,pass,1);
+							}
+							accounts2.close();
+							Titanium.UI.currentWindow.close();
+						}
 					}
 				}
-				else if (alreadyDefault == false) {	//No existing default account
-					if (accountMode == 1) {
-						db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1);
-					}
-					else {
-						db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF) VALUES(?,?,?,?)',client,name,pass,1);
-					}
-					Titanium.UI.createAlertDialog({
-			            title: msg,
-			            buttonNames: ['OK'],
-			        }).show();
-					accounts2.close();
-					Titanium.UI.currentWindow.close();
-				}
-			}
+			};
+			xhr.open("GET",request);
+			xhr.send();
 		}
 	});
 	
