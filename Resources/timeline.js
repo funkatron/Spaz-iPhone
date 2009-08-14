@@ -75,7 +75,7 @@ window.onload = function() {
 			var data = JSON.parse(this.responseText);
 			var text = '';
 			var count = 0;
-			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/gi;
+			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 			var mention = /@\w{1,15}/gi;
 			if (mode == 0 || mode == 1) {	//All, Replies
 				$.each(data, function(i,tweet){

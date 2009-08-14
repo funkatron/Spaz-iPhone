@@ -54,7 +54,7 @@ window.onload = function() {
 			var data = JSON.parse(this.responseText);
 			$(".usrimg").attr("src",data.user.profile_image_url);
 			$(".usrname").html(data.user.screen_name);
-			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?/gi;
+			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 			var mention = /@\w{1,15}/gi;
 			$(".usrmsgdetail").html(data.text.replace(link, function(exp) {
 					return ("<lnk>"+exp+"</lnk>");
