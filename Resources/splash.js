@@ -16,7 +16,7 @@ window.onload = function() {
 		color:'#111111'
 	});
 	loginbutton.addEventListener('click',function(e) {
-		Titanium.UI.currentWindow.close({animated:true});
+		Titanium.UI.currentWindow.close({animated:false});
 	});
 	
 	//Search and explore button
@@ -27,7 +27,7 @@ window.onload = function() {
 		color:'#EEEEEE'
 	});
 	searchbutton.addEventListener('click',function(e) {
-		Titanium.UI.currentWindow.close();
+		Titanium.UI.currentWindow.close({animated:false});
 	});
 	
 };

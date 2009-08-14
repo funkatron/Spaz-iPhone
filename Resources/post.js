@@ -141,7 +141,7 @@ window.onload = function() {
 						} else {
 							url = "http://"+name+":"+pass+"@identi.ca/api/statuses/update.json";
 						}
-						sendObject = {"status":message};
+						sendObject = {"status":message,"source":"Spaz"};
 					}
 					else if (mode == 1) {	//Direct Message
 						if (client == 0) {
@@ -149,7 +149,7 @@ window.onload = function() {
 						} else {
 							url = "http://"+name+":"+pass+"@identi.ca/api/direct_messages/new.json";
 						}
-						sendObject = {"screen_name":sendTo,"text":message};
+						sendObject = {"screen_name":sendTo,"text":message,"source":"Spaz"};
 					}
 					var xhr = Titanium.Network.createHTTPClient();
 					xhr.onload = function() {};
