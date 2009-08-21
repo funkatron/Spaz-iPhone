@@ -19,8 +19,6 @@
 - (NSData*) scriptNamedAccounts;
 - (NSData*) pageNamedDM;
 - (NSData*) scriptNamedDM;
-- (NSData*) pageNamedEditaccounts;
-- (NSData*) scriptNamedEditaccounts;
 - (NSData*) pageNamedFavorites;
 - (NSData*) scriptNamedFavorites;
 - (NSData*) scriptNamedHumane;
