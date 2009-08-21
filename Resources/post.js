@@ -120,57 +120,29 @@ window.onload = function() {
 	        }).show();
 		}
 		else {
-			var confirm = '';
+			var url = '';
+			var sendObject = {};
 			if (mode == 0) {	//Tweet
-				confirm = "Update status?";
+				if (client == 0) {
+					url = "http://"+name+":"+pass+"@twitter.com/statuses/update.json";
+				} else {
+					url = "http://"+name+":"+pass+"@identi.ca/api/statuses/update.json";
+				}
+				sendObject = {"status":message};
 			}
 			else if (mode == 1) {	//Direct Message
-				confirm = "Send message?";
-			}
-			var postconfirm = Titanium.UI.createAlertDialog({
-	            title: confirm,
-	            buttonNames: ['OK', 'Cancel'],
-	        });
-			postconfirm.addEventListener('click', function(k) {
-				if (k.index == 0) {
-					var url = '';
-					var sendObject = {};
-					if (mode == 0) {	//Tweet
-						if (client == 0) {
-							url = "http://"+name+":"+pass+"@twitter.com/statuses/update.json";
-						} else {
-							url = "http://"+name+":"+pass+"@identi.ca/api/statuses/update.json";
-						}
-						sendObject = {"status":message};
-					}
-					else if (mode == 1) {	//Direct Message
-						if (client == 0) {
-							url = "http://"+name+":"+pass+"@twitter.com/direct_messages/new.json";
-						} else {
-							url = "http://"+name+":"+pass+"@identi.ca/api/direct_messages/new.json";
-						}
-						sendObject = {"screen_name":sendTo,"text":message};
-					}
-					var xhr = Titanium.Network.createHTTPClient();
-					xhr.onload = function() {};
-					xhr.open("POST",url);
-					xhr.send(sendObject);
-					if (mode == 0) {
-						Titanium.UI.createAlertDialog({
-				            title: "Status Updated!",
-				            buttonNames: ['OK'],
-				        }).show();
-					}
-					else if (mode == 1) {
-						Titanium.UI.createAlertDialog({
-				            title: "Message Sent!",
-				            buttonNames: ['OK'],
-				        }).show();
-					}
-					Titanium.UI.currentWindow.close();
+				if (client == 0) {
+					url = "http://"+name+":"+pass+"@twitter.com/direct_messages/new.json";
+				} else {
+					url = "http://"+name+":"+pass+"@identi.ca/api/direct_messages/new.json";
 				}
-			});
-			postconfirm.show();
+				sendObject = {"screen_name":sendTo,"text":message};
+			}
+			var xhr = Titanium.Network.createHTTPClient();
+			xhr.onload = function() {};
+			xhr.open("POST",url);
+			xhr.send(sendObject);
+			Titanium.UI.currentWindow.close();
 		}
 	});
 	

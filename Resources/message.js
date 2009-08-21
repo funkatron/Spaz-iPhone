@@ -6,6 +6,8 @@ window.onload = function() {
 	var loggedIn = props.getBool('loggedIn');
 	var client = props.getInt('clientMode');
 	var isFavorite = false;
+	$("#favicon").css("opacity","0");
+	$(".hidden").css("display","none");
 	if (loggedIn == true) {
 		$(".hidden").css("display","inline");
 		var name = props.getString('username');
@@ -35,10 +37,6 @@ window.onload = function() {
 		}
 		xhr2.open("GET",request);
 		xhr2.send();
-	}
-	else {
-		$(".hidden").css("display","none");
-		$("#favicon").css("opacity","0");
 	}
 	var id;
 
@@ -86,6 +84,7 @@ window.onload = function() {
 	};
 	
 	getMessageDetails();
+	$("body").show();
 	
 	if (loggedIn == true) {
 		//Block button

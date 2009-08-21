@@ -1,5 +1,5 @@
 window.onload = function() {
-	
+
 	//Initialize
 	props = Titanium.App.Properties;
 	var id = props.getString('screenname');
@@ -50,7 +50,7 @@ window.onload = function() {
 		xhr.onload = function() {
 			var data = JSON.parse(this.responseText);
 			$(".usrimg").attr("src",data.profile_image_url);
-			$(".usrname").html(data.screen_name + " -");
+			$(".usrname").html(data.screen_name);
 			$(".usrbio").html(data.description);
 			var stats = "followers:" + data.followers_count + "\nfollowing:" + data.friends_count + "\nupdates:" + data.statuses_count;
 			$(".usrstats").html(stats);
@@ -60,6 +60,7 @@ window.onload = function() {
 	};
 	
 	getUserDetails();
+	$("body").show();
 	
 	//Link to user on the web button
 	var webbutton = Titanium.UI.createButton({

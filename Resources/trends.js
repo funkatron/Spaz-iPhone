@@ -1,9 +1,19 @@
 function getTrends() {
-	
+
+	if ($("#trcontainer").html() == "") {
+		// Activity Indicator
+		var ind = Titanium.UI.createActivityIndicator({
+			id:'indicator',
+			style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
+			color:'#fff'
+		});
+		ind.setMessage('Loading...');
+		ind.show();
+	}
 	if (props.getBool('loggedIn') == true && props.getInt('clientMode') == true) {	//logged on to Identica
+		ind.hide();
 		$(".header").text("Laconica currently does not support trends. Sorry!");
 	} else {
-		$(".header").text("Current Trends on Twitter");
 		// //Get current trend data
 		var xhr = Titanium.Network.createHTTPClient();
 		xhr.onload = function() {
@@ -22,7 +32,9 @@ function getTrends() {
 					trend.name +
 				"</div><img src='images/arrow_gray.png' class='optendimg'/></div>";
 			});
-			$("#trcontainer").css("height",height);
+			$("#trcontainer").animate({"height":height}, 1000);
+			ind.hide();
+			$(".header").text("Current Trends on Twitter");
 			$("#trcontainer").html(text);
 			$(".option").bind('click',function(e){
 				//Set searchQuery & resultsMode globals
@@ -47,7 +59,9 @@ window.onload = function() {
 	getTrends();
 	
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
+		
 		getTrends();
+		
 	});
 	
 };

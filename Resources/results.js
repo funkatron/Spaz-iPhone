@@ -1,6 +1,14 @@
 function getResults() {
 	
 	$("#rcontainer").empty();
+	// Activity Indicator
+	var ind = Titanium.UI.createActivityIndicator({
+		id:'indicator',
+		style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
+		color:'#fff'
+	});
+	ind.setMessage('Loading...');
+	ind.show();
 	var loggedIn = props.getBool('loggedIn');
 	var client = props.getInt('clientMode');
 	var query = props.getString('searchQuery');
@@ -22,7 +30,6 @@ function getResults() {
 			} else {
 				request = "http://"+name+":"+pass+"@identi.ca/api/statuses/user_timeline.json?screen_name="+encodeURIComponent(query);
 			}
-			
 		}
 		else {
 			if (client == 0) {
@@ -98,6 +105,7 @@ function getResults() {
 				count++;
 			});
 		}
+		ind.hide();
 		$("#rcontainer").html(text);
 		//User detail
 		$(".usrimg").bind('click',function(e){
@@ -181,21 +189,12 @@ window.onload = function() {
 				style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
 			});
 			savebutton.addEventListener('click',function(e){
-				var saveconfirm = Titanium.UI.createAlertDialog({
-		            title: "Are you sure you want to save search \""+query+"\"?",
-		            buttonNames: ['OK', 'Cancel'],
-		        });
-				saveconfirm.addEventListener('click',function(k){
-					if (k.index == 0) {
-						var xhr4 = Titanium.Network.createHTTPClient();
-						xhr4.onload = function() {
-							Titanium.UI.currentWindow.setRightNavButton(removebutton);
-						};
-						xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/create.json");
-						xhr4.send({"query":query});
-					}
-				});
-				saveconfirm.show();
+				var xhr4 = Titanium.Network.createHTTPClient();
+				xhr4.onload = function() {
+					Titanium.UI.currentWindow.setRightNavButton(removebutton);
+				};
+				xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/create.json");
+				xhr4.send({"query":query});
 			});
 		
 			//Remove search button
@@ -204,21 +203,12 @@ window.onload = function() {
 				style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
 			});
 			removebutton.addEventListener('click',function(e){
-				var removeconfirm = Titanium.UI.createAlertDialog({
-		            title: "Are you sure you want to remove search \""+query+"\"?",
-		            buttonNames: ['OK', 'Cancel'],
-		        });
-				removeconfirm.addEventListener('click',function(k){
-					if (k.index == 0) {
-						var xhr4 = Titanium.Network.createHTTPClient();
-						xhr4.onload = function() {
-							Titanium.UI.currentWindow.setRightNavButton(savebutton);
-						};
-						xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/destroy/"+searchID+".json");
-						xhr4.send();
-					}
-				});
-				removeconfirm.show();
+				var xhr4 = Titanium.Network.createHTTPClient();
+				xhr4.onload = function() {
+					Titanium.UI.currentWindow.setRightNavButton(savebutton);
+				};
+				xhr4.open("POST","http://"+name+":"+pass+"@twitter.com/saved_searches/destroy/"+searchID+".json");
+				xhr4.send();
 			});
 		
 			var xhr3 = Titanium.Network.createHTTPClient();

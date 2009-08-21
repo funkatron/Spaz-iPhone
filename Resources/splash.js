@@ -18,7 +18,7 @@ window.onload = function() {
 		color:'#111111'
 	});
 	loginbutton.addEventListener('click',function(e) {
-		Titanium.UI.currentWindow.close({animated:true});
+		Titanium.UI.currentWindow.close({animated:true, animationStyle:Titanium.UI.iPhone.AnimationStyle.CURL_UP});
 	});
 	
 	//Search and explore button

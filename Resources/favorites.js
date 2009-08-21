@@ -1,10 +1,24 @@
 function getFavorites() {
+	
+	$("#fcontainer").empty();
+	// Activity Indicator
+	var ind = Titanium.UI.createActivityIndicator({
+		id:'indicator',
+		style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
+		color:'#fff'
+	});
+	ind.setMessage('Loading...');
+	ind.show();
 	var loggedIn = props.getBool('loggedIn');
 	if (loggedIn == true) {
-		$("#fcontainer").empty();
 		var name = props.getString('username');
 		var pass = props.getString('password');
 		var client = props.getInt('clientMode');
+		var cache = db.execute("SELECT FAVORITES FROM ACCOUNTS WHERE ACCOUNT='"+name+"'").field(0);
+		if (cache != '') {
+			ind.hide();
+			$("#fcontainer").html(cache);
+		}
 		var request = '';
 		if (client == 0) {
 			request = "http://"+name+":"+pass+"@twitter.com/favorites.json";
@@ -44,7 +58,9 @@ function getFavorites() {
 				"</div></div>";
 				count++;
 			});
+			ind.hide();
 			$("#fcontainer").html(text);
+			db.execute("UPDATE ACCOUNTS SET FAVORITES=? WHERE ACCOUNT='"+name+"'",text);
 			//User detail
 			$(".usrimg").bind('click',function(e){
 				//Set user screenname global
@@ -87,20 +103,29 @@ function getFavorites() {
 		xhr.send();
 	}
 	else {
+		ind.hide();
 		$("#fcontainer").html("<div class='header'>Must be logged in.</div>");
 	}
 };
 
 
 window.onload = function() {
-
+	
+	// Initialize
 	props = Titanium.App.Properties;
+	db = Titanium.Database.open('fake');
+	db.close();
+	db._TOKEN = props.getString('dbtoken');
 	
 	getFavorites();
 		
-	//Refresh page on focus
+	// Refresh page on focus
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
 		getFavorites();
 	});
+	
+	// Titanium.UI.currentWindow.addEventListener('unfocused',function(){
+	// 	db.close();
+	// });
 	
 };

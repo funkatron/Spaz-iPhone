@@ -1,8 +1,16 @@
 function savedSearches() {
+	
 	var loggedIn = props.getString('loggedIn');
 	if (loggedIn == true){
 		var client = props.getInt('clientMode');
 		if (client == 0) {
+			var ind = Titanium.UI.createActivityIndicator({
+				id:'indicator',
+				style:Titanium.UI.iPhone.ActivityIndicatorStyle.BIG,
+				color:'#fff'
+			});
+			ind.setMessage('Loading...');
+			ind.show();
 			$("#savedsearches").empty();
 			var text = '';
 			var name = props.getString('username');
@@ -25,7 +33,8 @@ function savedSearches() {
 					text += "</div><img src='images/arrow_gray.png' class='optendimg'/></div>";
 				});
 				text += "</div>";
-				$("#scontainer").css("height",height);
+				$("#scontainer").animate({"height":height}, 1000);
+				ind.hide();
 				$("#savedsearches").html(text);
 				$(".option").bind('click',function(e){
 					//Set searchQuery & resultsMode globals
@@ -40,6 +49,9 @@ function savedSearches() {
 			xhr.open("GET","http://"+name+":"+pass+"@twitter.com/saved_searches.json");
 			xhr.send();
 		}
+	}
+	else {
+		$("#savedsearches").empty();
 	}
 };
 
@@ -76,7 +88,9 @@ window.onload = function() {
 	savedSearches();
 	
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
+		
 		savedSearches();
+		
 	});
 	
 };

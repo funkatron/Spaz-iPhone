@@ -52,6 +52,7 @@ window.onload = function() {
 	};
 	
 	getDMDetails();
+	$("body").show();
 	
 	// Block button
 	var blockbutton = Titanium.UI.createButton({
@@ -87,7 +88,7 @@ window.onload = function() {
 	$(".leftbutton").bind('click',function(e){
 		if (client == 0) {
 			var delconfirm = Titanium.UI.createAlertDialog({
-	            title: "Are you sure you delete this message?",
+	            title: "Are you sure you want delete this message?",
 	            buttonNames: ['OK', 'cancel'],
 	        });
 			delconfirm.addEventListener('click', function(k) {

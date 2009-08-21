@@ -8,6 +8,13 @@ body {
 	height:60px;
 }
 
+#indicator {
+	width:200px;
+	margin-top:140px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
 
 /************************* Search View *************************/
 
@@ -191,7 +198,8 @@ usr {
 	-webkit-border-radius:10px;
 	width:300px;
 	background-color:#fff;
-	margin:auto;
+	margin-right:2px;
+	float:right;
 }
 
 .editoption_container {
@@ -266,10 +274,6 @@ usr {
 	float:right;
 }
 
-#signouttext {
-	color:red;
-}
-
 #newaccounttext {
 	color:#87c440;
 }
@@ -310,6 +314,7 @@ usr {
 #text_field {
 	height:100px;
 	width:300px;
+	-webkit-border-radius:10px;
 	margin-left:auto;
 	margin-right:auto;
 	margin-top:0;
@@ -430,4 +435,10 @@ ctext {
 
 #verifybutton {
 	margin-top:30px;
+}
+
+#verifying {
+	position:relative;
+	top:20px;
+	left:100px;
 }

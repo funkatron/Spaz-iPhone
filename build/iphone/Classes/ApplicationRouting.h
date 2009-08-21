@@ -27,12 +27,15 @@
 - (NSData*) scriptNamedHumaneOG;
 - (NSData*) scriptNamedJquery_1_3_2;
 - (NSData*) scriptNamedJson2;
+- (NSData*) pageNamedLink;
+- (NSData*) scriptNamedLink;
 - (NSData*) pageNamedMessage;
 - (NSData*) scriptNamedMessage;
 - (NSData*) pageNamedMore;
 - (NSData*) scriptNamedMore;
 - (NSData*) pageNamedNewaccount;
 - (NSData*) scriptNamedNewaccount;
+- (NSData*) pageNamedNointernet;
 - (NSData*) pageNamedPost;
 - (NSData*) scriptNamedPost;
 - (NSData*) pageNamedResults;
