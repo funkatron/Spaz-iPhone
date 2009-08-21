@@ -252,8 +252,8 @@ window.onload = function() {
 	}
 	
 	//Initialize databse
-	db = Titanium.Database.open('mydb');
-	db.remove();
+	//db = Titanium.Database.open('mydb');
+	//db.remove();
 	db = Titanium.Database.open('mydb');
 	props.setString('dbtoken',db._TOKEN);
 	//CLIENT: 0 = Twitter, 1 = Identica
