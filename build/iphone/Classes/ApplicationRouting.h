@@ -43,6 +43,14 @@
 - (NSData*) pageNamedSplash;
 - (NSData*) scriptNamedSplash;
 - (NSData*) styleNamedStyle;
+- (NSData*) pageNamedTimeline_all;
+- (NSData*) scriptNamedTimeline_all;
+- (NSData*) pageNamedTimeline_dms;
+- (NSData*) scriptNamedTimeline_dms;
+- (NSData*) pageNamedTimeline_public;
+- (NSData*) scriptNamedTimeline_public;
+- (NSData*) pageNamedTimeline_replies;
+- (NSData*) scriptNamedTimeline_replies;
 - (NSData*) pageNamedTimeline;
 - (NSData*) scriptNamedTimeline;
 - (NSData*) pageNamedTrends;

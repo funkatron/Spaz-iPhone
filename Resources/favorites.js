@@ -110,7 +110,6 @@ function getFavorites() {
 
 
 window.onload = function() {
-	
 	// Initialize
 	props = Titanium.App.Properties;
 	db = Titanium.Database.open('fake');
@@ -123,9 +122,4 @@ window.onload = function() {
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
 		getFavorites();
 	});
-	
-	// Titanium.UI.currentWindow.addEventListener('unfocused',function(){
-	// 	db.close();
-	// });
-	
 };

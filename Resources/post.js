@@ -139,10 +139,12 @@ window.onload = function() {
 				sendObject = {"screen_name":sendTo,"text":message,"source":"Spaz"};
 			}
 			var xhr = Titanium.Network.createHTTPClient();
-			xhr.onload = function() {};
+			xhr.onload = function() {
+				props.setBool('accountChangeAll',true);
+				Titanium.UI.currentWindow.close();
+			};
 			xhr.open("POST",url);
 			xhr.send(sendObject);
-			Titanium.UI.currentWindow.close();
 		}
 	});
 	

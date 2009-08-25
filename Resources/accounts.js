@@ -47,20 +47,22 @@ function getAccounts() {	//Main function, called below
 		// Public Timeline button
 		if ($(this).is("#public")) {
 			props.setBool('loggedIn',false);
+			props.setBool('accountChangeAll',true);
+			props.setInt('inboxMode',3);
 			props.setInt('clientMode',0);
 			Titanium.UI.currentWindow.close();
 		}
 		else {
 			//Get info for selected account
-			var accounts2 = db.execute('SELECT * FROM ACCOUNTS');
-			while (accounts2.isValidRow()) {
-				if (accounts2.fieldByName('account') == $(this).children(".label").text()) {break;}
-				accounts2.next();
+			var accounts = db.execute('SELECT * FROM ACCOUNTS');
+			while (accounts.isValidRow()) {
+				if (accounts.fieldByName('account') == $(this).children(".label").text()) {break;}
+				accounts.next();
 			}
-			var name = accounts2.fieldByName('account');
-			var pass = accounts2.fieldByName('password');
-			var client = accounts2.fieldByName('client');
-			accounts2.close();
+			var name = accounts.fieldByName('account');
+			var pass = accounts.fieldByName('password');
+			var client = accounts.fieldByName('client');
+			accounts.close();
 		
 			//Attempt login
 			var request = '';
@@ -80,8 +82,11 @@ function getAccounts() {	//Main function, called below
 		            }).show();
 				}
 				else {
-					//Account verified, set loggedIn, account globals to true
+					//Account verified, set loggedIn, account globals
 					props.setBool('loggedIn',true);
+					props.setBool('accountChangeAll',true);
+					props.setBool('accountChangeReplies',true);
+					props.setBool('accountChangeDMs',true);
 					props.setString('username',name);
 					props.setString('password',pass);
 					props.setInt('clientMode',client);
@@ -202,8 +207,5 @@ window.onload = function() {
 		getAccounts();	//call on focus
 		
 	});
-	
-	// Titanium.UI.currentWindow.addEventListener('unfocused',function(){
-	// 	db.close();
-	// });
+
 };

@@ -157,6 +157,9 @@ window.onload = function() {
 							props.setString('username',name);
 							props.setString('password',pass);
 							props.setInt('clientMode',client);
+							props.setBool('accountChangeAll',true);
+							props.setBool('accountChangeReplies',true);
+							props.setBool('accountChangeDMs',true);
 							props.setInt('inboxMode',0);
 							db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,0,'','','','');
 						}
@@ -201,6 +204,9 @@ window.onload = function() {
 											props.setString('username',name);
 											props.setString('password',pass);
 											props.setInt('clientMode',client);
+											props.setBool('accountChangeAll',true);
+											props.setBool('accountChangeReplies',true);
+											props.setBool('accountChangeDMs',true);
 											props.setInt('inboxMode',0);
 											db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,1,'','','','');
 										}
@@ -225,6 +231,9 @@ window.onload = function() {
 								props.setString('username',name);
 								props.setString('password',pass);
 								props.setInt('clientMode',client);
+								props.setBool('accountChangeAll',true);
+								props.setBool('accountChangeReplies',true);
+								props.setBool('accountChangeDMs',true);
 								props.setInt('inboxMode',0);
 								db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,1,'','','','');
 							}
