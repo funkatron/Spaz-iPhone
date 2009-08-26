@@ -88,11 +88,7 @@ function getTimelineAll() {
 		if (count > 0) {
 			tabs[0].setBadge(count);
 		}
-		try {
-			db.execute("UPDATE ACCOUNTS SET TIMELINE=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
-		} catch(err) {
-			Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> error: '+err);
-		}
+		db.execute("UPDATE ACCOUNTS SET TIMELINE=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
 		//User detail
 		$(".usrimg").bind('click',function(e){
 			//Set user ID global
@@ -115,11 +111,7 @@ function getTimelineAll() {
 		});
 		//Links
 		$("lnk").bind('click',function(e){
-			props.setString('link',$(this).text());
-			Titanium.UI.createWindow({
-				url:'link.html',
-				barColor:'#423721',
-			}).open();
+			Titanium.Platform.openURL($(this).text());
 			e.stopPropagation();
 			return false;
 		});

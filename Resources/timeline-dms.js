@@ -108,11 +108,7 @@ function getTimelineDMs() {
 		});
 		//Links
 		$("lnk").bind('click',function(e){
-			props.setString('link',$(this).text());
-			Titanium.UI.createWindow({
-				url:'link.html',
-				barColor:'#423721',
-			}).open();
+			Titanium.Platform.openURL($(this).text());
 			e.stopPropagation();
 			return false;
 		});
