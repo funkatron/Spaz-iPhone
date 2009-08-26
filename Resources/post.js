@@ -1,5 +1,13 @@
 window.onload = function() {
 	
+	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
+	
+	// Initialize
 	var props = Titanium.App.Properties;
 	var loggedIn = props.getBool('loggedIn');
 	var client = props.getInt('clientMode');
@@ -9,7 +17,6 @@ window.onload = function() {
 	var mode = props.getInt('postMode');
 	var sendTo = props.getString('sendTo');
 	var message = props.getString('initialPost');
-	
 	$(".postheader").text(postHeader);
 	
 	//Text field

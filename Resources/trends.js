@@ -56,12 +56,18 @@ window.onload = function() {
 	
 	// Initialize globals
 	props = Titanium.App.Properties;
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
 	
 	getTrends();
 	
 	// Get trends on each page focus
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
-		getTrends();		
+		getTrends();
+		// Check for internet
+		if (Titanium.Network.online == false) {
+			Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+		}
 	});
 	
 };

@@ -52,7 +52,10 @@ function savedSearches() {
 
 window.onload = function() {
 
+	// Initialize
 	props = Titanium.App.Properties;
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
 	
 	//Search text field object
 	var sfield = Titanium.UI.createTextField({
@@ -83,6 +86,10 @@ window.onload = function() {
 	savedSearches();
 	
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
+		// Check for internet
+		if (Titanium.Network.online == false) {
+			Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+		}
 		savedSearches();
 	});
 	

@@ -1,8 +1,11 @@
 function getTimelinePublic() {
-	Titanium.UI.currentWindow.setTitle("Public Timeline");
-	if (props.getBool('accountChangeAll') == true) {
-		$("#tcontainer").empty();
+	
+	// Check for internet
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
 	}
+	
+	Titanium.UI.currentWindow.setTitle("Public Timeline");
 	if ($("#tcontainer").html = '') {
 		var ind = Titanium.UI.createActivityIndicator({
 			id:'indicator',
@@ -55,7 +58,7 @@ function getTimelinePublic() {
 				$(this).css("background-image","url('images/BG_light_sliver.png')");
 			}
 		});
-		Titanium.UI.setTabBadge(count);
+		tabs[0].setBadge(count);
 		//User detail
 		$(".usrimg").bind('click',function(e){
 			//Set user ID global
@@ -107,9 +110,9 @@ window.onload = function() {
 	
 	// Initialize
 	props = Titanium.App.Properties;
-	db = Titanium.Database.open('fake');
-	db.close();
-	db._TOKEN = props.getString('dbtoken');
+	tabs = Titanium.UI.getTabs();
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
 	
 	// Refresh button
 	var refreshbutton = Titanium.UI.createButton({
@@ -127,14 +130,8 @@ window.onload = function() {
 	
 	getTimelinePublic();
 	
-	Titanium.UI.currentWindow.addEventListener('focused',function(){
-		if (props.getBool('accountChangeAll') == true) {
-			getTimelineAll();
-		}
-	});
-	
 	Titanium.UI.currentWindow.addEventListener('unfocused',function(){
-		Titanium.UI.setTabBadge(null);
+		tabs[0].setBadge(null);
 	});
 	
 };

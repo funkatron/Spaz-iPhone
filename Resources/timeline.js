@@ -27,25 +27,22 @@ window.onload = function() {
 	props.setString('postHeader','');
 	props.setString('initialPost','');
 	props.setString('accName','');
-	props.setString('dbtoken','');
 	props.setInt('clientMode',0); // 0 = Twitter, 1 = Identi.ca
 	props.setInt('inboxMode',0);
 	props.setInt('postMode',0);
 	props.setInt('accountMode',0);
 	
 	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
 	if (Titanium.Network.online == false) {
-		Titanium.UI.createWindow({
-			url:'nointernet.html',
-			hideTabBar:true,
-		}).open();
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
 	}
 	
 	//Initialize databse
 	//db = Titanium.Database.open('mydb');
 	//db.remove();
 	db = Titanium.Database.open('mydb');
-	props.setString('dbtoken',db._TOKEN);
 	//CLIENT: 0 = Twitter, 1 = Identica
 	//DEF: 0 = NO, 1 = YES
 	//db.execute('DROP TABLE ACCOUNTS');
@@ -53,7 +50,9 @@ window.onload = function() {
 	
 	// Login default account if exists
 	var initialState; // 0 = No accounts, 1 = Accounts but no default, 2 = Default login success
-	var rowCount = db.execute('SELECT COUNT(*) FROM ACCOUNTS').field(0);
+	var rc = db.execute('SELECT COUNT(*) FROM ACCOUNTS');
+	var rowCount = rc.field(0);
+	rc.close();
 	if (rowCount == 0) {
 		initialState = 0;	// 0 = No accounts
 	}
@@ -116,8 +115,7 @@ window.onload = function() {
 	Titanium.UI.currentWindow.addView(viewAll);
 	Titanium.UI.currentWindow.addView(viewReplies);
 	Titanium.UI.currentWindow.addView(viewDMs);
-	Titanium.UI.currentWindow.addView(viewPublic);
-	views = Titanium.UI.currentWindow.getViews();	
+	Titanium.UI.currentWindow.addView(viewPublic);	
 
 	// Accounts button
 	var accountbutton = Titanium.UI.createButton({
@@ -141,7 +139,7 @@ window.onload = function() {
 		});
 		tabbar.addEventListener('click',function(e){
 			props.setInt('inboxMode',e.index);
-			Titanium.UI.currentWindow.showView(getView(e.index));
+			Titanium.UI.currentWindow.showView(getView(props.getInt('inboxMode')));
 		});
 		
 		// Post new tweet button
@@ -167,7 +165,6 @@ window.onload = function() {
 		
 	// Get timeline on focus
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
-		Titanium.UI.currentWindow.showView(getView(props.getInt('inboxMode')));
 		//Show toolbar only if logged in.
 		if (props.getBool('loggedIn') == true) {
 			Titanium.UI.currentWindow.setToolbar([tabbar,flexSpace,newmsgbutton]);
@@ -175,5 +172,7 @@ window.onload = function() {
 		else {
 			Titanium.UI.currentWindow.setToolbar(null);
 		}
+		Titanium.UI.currentWindow.showView(getView(props.getInt('inboxMode')));
 	});
+
 };

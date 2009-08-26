@@ -1,10 +1,15 @@
 window.onload = function() {
 
-	//Initialize
+	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
+	
+	// Initialize
 	props = Titanium.App.Properties;
-	db = Titanium.Database.open('fake');
-	db.close();
-	db._TOKEN = props.getString('dbtoken');
+	db = Titanium.Database.open('mydb');
 	var accountMode = props.getInt('accountMode');
 	var accName;
 	var name = '';
@@ -13,28 +18,24 @@ window.onload = function() {
 	var isDefault = false;
 	$("#checked").css("visibility","hidden");
 	$("#unchecked").css("visibility","visible");
-	if (accountMode == 0) {	//New account
+	if (accountMode == 0) {	// New account
 		$("#tcheck").css("visibility","hidden");
 		$("#icheck").css("visibility","hidden");
 	}
-	else if (accountMode == 1) {	//Edit existing account
+	else if (accountMode == 1) {	// Edit existing account
 		Titanium.UI.currentWindow.setTitle('Edit Account');
 		accName = props.getString('accName');
-		var accounts = db.execute("SELECT * FROM ACCOUNTS");
-		while (accounts.isValidRow()) {
-			if (accounts.fieldByName('account') == accName) {break;}
-			accounts.next();
-		}
-		name = accounts.fieldByName('account');
-		pass = accounts.fieldByName('password');
-		client = accounts.fieldByName('client');
-		//Initialize default box
-		if (accounts.fieldByName('def') == 1) {
+		var account = db.execute("SELECT * FROM ACCOUNTS WHERE ACCOUNT=?",accName);
+		name = account.fieldByName('account');
+		pass = account.fieldByName('password');
+		client = account.fieldByName('client');
+		// Initialize default box
+		if (account.fieldByName('def') == 1) {
 			isDefault = true;
 			$("#checked").css("visibility","visible");
 			$("#unchecked").css("visibility","hidden");
 		}
-		accounts.close();
+		account.close();
 		if (client == 0) {
 			$("#tcheck").css("visibility","visible");
 			$("#icheck").css("visibility","hidden");
@@ -46,7 +47,7 @@ window.onload = function() {
 	}
 
 	
-	//Username field object
+	// Username field object
 	var userfield = Titanium.UI.createTextField({
 		id:'userfield',
 		color:'#000',
@@ -68,7 +69,7 @@ window.onload = function() {
 		userfield.blur();
 	});
 	
-	//Password field object
+	// Password field object
 	var passfield = Titanium.UI.createTextField({
 		id:'passfield',
 		color:'#000',
@@ -91,7 +92,7 @@ window.onload = function() {
 		passfield.blur();
 	});
 	
-	//Verify button
+	// Verify button
 	var verifybutton = Titanium.UI.createButton({
 		id:'verifybutton',
 		backgroundImage:'images/green_butt.png',
@@ -120,12 +121,14 @@ window.onload = function() {
 		else {
 			verifybutton.title = "";
 			verifybutton.update();
+			// Verify indicator
 			var ind = Titanium.UI.createActivityIndicator({
 				id:'verifying',
 				color:'#fff'
 			});
 			ind.setMessage('Verifying...');
 			ind.show();
+			// Send request to verify account
 			var request = '';
 			if (client == 0) {
 				request = "http://"+name+":"+pass+"@twitter.com/account/verify_credentials.json";
@@ -134,7 +137,6 @@ window.onload = function() {
 			}
 			var xhr = Titanium.Network.createHTTPClient();
 			xhr.onload = function() {
-				Titanium.API.info('.>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> onload');
 				var data = JSON.parse(this.responseText);
 				if (data.error == "Could not authenticate you.") {
 					verifybutton.title = "Verify & Save Account";
@@ -147,9 +149,10 @@ window.onload = function() {
 		            }).show();
 				}
 				else {	// Account verified
+					// Account not set as default, login
 					if (isDefault == false) {
 						if (accountMode == 1) {
-							db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT='"+accName+"'",client,name,pass,0,'','','','');
+							db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,0,'','','','',accName);
 						}
 						else {
 							props.setBool('accountCreated',true);
@@ -166,37 +169,42 @@ window.onload = function() {
 						ind.hide();
 						Titanium.UI.currentWindow.close();
 					}
+					// Account set as default
 					else if (isDefault == true) {
-						var rowCount = db.execute('SELECT COUNT(*) FROM ACCOUNTS').field(0);
-						var accounts2 = db.execute('SELECT * FROM ACCOUNTS');
+						// Get rowCount
+						var rc = db.execute('SELECT COUNT(*) FROM ACCOUNTS');
+						var rowCount = rc.field(0);
+						rc.close();
+						// Check if there is another account already set as default
+						var accounts = db.execute('SELECT * FROM ACCOUNTS');
 						var alreadyDefault = false;
 						for (var i = 0; i < rowCount; i++) {
-							if (accounts2.fieldByName('def') == 1) {
+							if (accounts.fieldByName('def') == 1) {
 								alreadyDefault = true;
 								break;
 							}
-							accounts2.next();
+							accounts.next();
 						}
-						if (alreadyDefault == true) {	//There is an existing default account
-							if (accounts2.fieldByName('account') == accName) {	//Account replacing itself, don't need to query
-								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1,'','','','');
-								accounts2.close();
+						if (alreadyDefault == true) {	// There is an existing default account
+							if (accounts.fieldByName('account') == accName) {	//Account replacing itself, don't need to query, just update
+								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'','','','',accName);
+								accounts.close();
 								ind.hide();
 								Titanium.UI.currentWindow.close();
 							}
-							else {
+							else {	// Replacing another existing account as default, query
 								var replace = Titanium.UI.createAlertDialog({
-						            title: "Replace "+accounts2.fieldByName('account')+" as default account?",
+						            title: "Replace "+accounts.fieldByName('account')+" as default account?",
 						            buttonNames: ['OK','Cancel'],
 						        });
 								replace.addEventListener('click',function(k){
 									if (k.index == 0) {
 										//Make old default account non-default
-										var tempname = accounts2.fieldByName('account');
-										db.execute("UPDATE ACCOUNTS SET DEF=? WHERE ACCOUNT='"+tempname+"'",0);
+										var tempname = accounts.fieldByName('account');
+										db.execute("UPDATE ACCOUNTS SET DEF=? WHERE ACCOUNT=?",0,tempname);
 										//Create account as normal
 										if (accountMode == 1) {
-											db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1,'','','','');
+											db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'','','','',accName);
 										}
 										else {
 											props.setBool('accountCreated',true);
@@ -210,20 +218,20 @@ window.onload = function() {
 											props.setInt('inboxMode',0);
 											db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,1,'','','','');
 										}
-										accounts2.close();
+										accounts.close();
 										ind.hide();
 										Titanium.UI.currentWindow.close();
 									}
 									else {
-										accounts2.close();
+										accounts.close();
 									}
 								});
 								replace.show();
 							}
 						}
-						else if (alreadyDefault == false) {	//No existing default account
+						else if (alreadyDefault == false) {	// No existing default account
 							if (accountMode == 1) {
-								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT='"+accName+"'",client,name,pass,1,'','','','');
+								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'','','','',accName);
 							}
 							else {
 								props.setBool('accountCreated',true);
@@ -237,7 +245,7 @@ window.onload = function() {
 								props.setInt('inboxMode',0);
 								db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,1,'','','','');
 							}
-							accounts2.close();
+							accounts.close();
 							ind.hide();
 							Titanium.UI.currentWindow.close();
 						}
@@ -249,7 +257,7 @@ window.onload = function() {
 		}
 	});
 	
-	//Twitter/Identica option box
+	// Twitter/Identica option box
 	$(".option").bind('click',function(e){
 		if ($(this).is("#twitter")) {
 			$("#tcheck").css("visibility","visible");
@@ -263,7 +271,7 @@ window.onload = function() {
 		}
 	});
 	
-	//Default check box
+	// Default check box
 	$("#checkbox").bind('click',function(e){
 		if (isDefault == false) {
 			$("#checked").css("visibility","visible");
@@ -276,9 +284,4 @@ window.onload = function() {
 			isDefault = false;
 		}
 	});
-	
-	// Titanium.UI.currentWindow.addEventListener('unfocused',function(){
-	// 	db.close();
-	// });
-	
 };

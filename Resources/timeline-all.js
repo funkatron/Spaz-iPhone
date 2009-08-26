@@ -1,4 +1,10 @@
 function getTimelineAll() {
+	
+	// Check for internet
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
+	
 	if (props.getBool('accountChangeAll') == true) {
 		$("#tcontainer").empty();
 	}
@@ -7,7 +13,9 @@ function getTimelineAll() {
 	var client = props.getInt('clientMode');
 	Titanium.UI.currentWindow.setTitle(name);
 	var request = "";
-	var cache = db.execute("SELECT TIMELINE FROM ACCOUNTS WHERE ACCOUNT='"+name+"'").field(0);
+	var dbquery = db.execute("SELECT TIMELINE FROM ACCOUNTS WHERE ACCOUNT=?",name);
+	var cache = decodeURIComponent(dbquery.field(0));
+	dbquery.close();
 	$("#tcontainer").html(cache);
 	if (cache == '') {
 		var ind = Titanium.UI.createActivityIndicator({
@@ -78,9 +86,13 @@ function getTimelineAll() {
 			}
 		});
 		if (count > 0) {
-			Titanium.UI.setTabBadge(count);
+			tabs[0].setBadge(count);
 		}
-		db.execute("UPDATE ACCOUNTS SET TIMELINE=? WHERE ACCOUNT='"+name+"'",text);
+		try {
+			db.execute("UPDATE ACCOUNTS SET TIMELINE=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
+		} catch(err) {
+			Titanium.API.info('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> error: '+err);
+		}
 		//User detail
 		$(".usrimg").bind('click',function(e){
 			//Set user ID global
@@ -132,9 +144,10 @@ window.onload = function() {
 	
 	// Initialize
 	props = Titanium.App.Properties;
-	db = Titanium.Database.open('fake');
-	db.close();
-	db._TOKEN = props.getString('dbtoken');
+	db = Titanium.Database.open('mydb');
+	tabs = Titanium.UI.getTabs();
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
 	
 	// Refresh button
 	var refreshbutton = Titanium.UI.createButton({
@@ -160,7 +173,7 @@ window.onload = function() {
 	});
 	
 	Titanium.UI.currentWindow.addEventListener('unfocused',function(){
-		Titanium.UI.setTabBadge(null);
+		tabs[0].setBadge(null);
 	});
 	
 };

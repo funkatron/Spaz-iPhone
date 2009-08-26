@@ -1,5 +1,5 @@
 function getResults() {
-	
+
 	$("#rcontainer").empty();
 	// Activity Indicator
 	var ind = Titanium.UI.createActivityIndicator({
@@ -156,6 +156,13 @@ window.onload = function() {
 	var query = props.getString('searchQuery');
 	var loggedIn = props.getBool('loggedIn');
 	var client = props.getInt('clientMode');
+	
+	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
 	
 	Titanium.UI.currentWindow.setTitle(query);
 

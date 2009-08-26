@@ -1,4 +1,10 @@
 function getTimelineReplies() {
+	
+	// Check for internet
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
+	
 	if (props.getBool('accountChangeReplies') == true) {
 		$("#tcontainer").empty();
 	}
@@ -7,7 +13,9 @@ function getTimelineReplies() {
 	var client = props.getInt('clientMode');
 	Titanium.UI.currentWindow.setTitle(name);
 	var request = "";
-	var cache = db.execute("SELECT REPLIES FROM ACCOUNTS WHERE ACCOUNT='"+name+"'").field(0);
+	var dbquery = db.execute("SELECT REPLIES FROM ACCOUNTS WHERE ACCOUNT=?",name);
+	var cache = decodeURIComponent(dbquery.field(0));
+	dbquery.close();
 	$("#tcontainer").html(cache);
 	if (cache == '') {
 		var ind = Titanium.UI.createActivityIndicator({
@@ -77,7 +85,7 @@ function getTimelineReplies() {
 				$(this).css("background-image","url('images/BG_light_sliver.png')");
 			}
 		});
-		db.execute("UPDATE ACCOUNTS SET REPLIES=? WHERE ACCOUNT='"+name+"'",text);
+		db.execute("UPDATE ACCOUNTS SET REPLIES=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
 		//User detail
 		$(".usrimg").bind('click',function(e){
 			//Set user ID global
@@ -129,9 +137,9 @@ window.onload = function() {
 	
 	// Initialize
 	props = Titanium.App.Properties;
-	db = Titanium.Database.open('fake');
-	db.close();
-	db._TOKEN = props.getString('dbtoken');
+	db = Titanium.Database.open('mydb');
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
 	
 	// Refresh button
 	var refreshbutton = Titanium.UI.createButton({
@@ -147,7 +155,7 @@ window.onload = function() {
 		getTimelineReplies();
 	});
 	
-	setInterval("getTimelineReplies()",60000);
+	setInterval("getTimelineReplies()",120000);
 	
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
 		if (props.getBool('accountChangeReplies') == true) {
