@@ -19,7 +19,7 @@ window.onload = function() {
 	var message = props.getString('initialPost');
 	$(".postheader").text(postHeader);
 	
-	//Text field
+	// Text field
 	var tfield = Titanium.UI.createTextArea({
 		id:'text_field',
 		value:message,
@@ -44,7 +44,7 @@ window.onload = function() {
 	
 	$("#counter").html(140-tfield.value.length);
 	
-	//Add photo button
+	// Add photo button
 	var photobutton = Titanium.UI.createButton({
 		id:'photobutton',
 		backgroundImage:'images/camera.png',
@@ -111,7 +111,7 @@ window.onload = function() {
 		});
 	};
 	
-	//Post button
+	// Post button
 	var postbutton = Titanium.UI.createButton({
 		id:'postbutton',
 		backgroundImage:'images/green_butt.png',
@@ -129,7 +129,7 @@ window.onload = function() {
 		else {
 			var url = '';
 			var sendObject = {};
-			if (mode == 0) {	//Tweet
+			if (mode == 0) {	// Tweet
 				if (client == 0) {
 					url = "http://"+name+":"+pass+"@twitter.com/statuses/update.json";
 				} else {
@@ -137,7 +137,7 @@ window.onload = function() {
 				}
 				sendObject = {"status":message,"source":"Spaz"};
 			}
-			else if (mode == 1) {	//Direct Message
+			else if (mode == 1) {	// Direct Message
 				if (client == 0) {
 					url = "http://"+name+":"+pass+"@twitter.com/direct_messages/new.json";
 				} else {
@@ -155,7 +155,7 @@ window.onload = function() {
 		}
 	});
 	
-	//Cancel button
+	// Cancel button
 	var cancelbutton = Titanium.UI.createButton({
 		id:'cancelbutton',
 		backgroundImage:'images/red_butt.png',

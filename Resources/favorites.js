@@ -34,7 +34,6 @@ function getFavorites() {
 		xhr.onload = function() {
 			var data = JSON.parse(this.responseText);
 			var text = '';
-			var count = 0;
 			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 			var mention = /@\w{1,15}/gi;
 			$.each(data, function(i,tweet){
@@ -42,7 +41,11 @@ function getFavorites() {
 					tweet.id +
 				"' timestamp='" +
 					tweet.created_at +
-				"' class='status'><img src='" +
+				"' class='status ";
+					if (props.getBool('loggedIn') == true && props.getString('username') == tweet.user.screen_name) {text += "self";}
+					else if (i % 2 == 0) {text += "even";}
+					else if (i % 2 == 1) {text += "odd";}
+				text += "'><img src='" +
 					tweet.user.profile_image_url +
 				"' class='usrimg'/><div class='usrname'>" +
 					tweet.user.screen_name +
@@ -55,20 +58,10 @@ function getFavorites() {
 							return ("<usr>"+exp+"</usr>");
 						}) +
 				"</div></div>";
-				count++;
 			});
 			ind.hide();
 			// Display & cache favorites
 			$("#fcontainer").html(text);
-			$(".status").each(function(i){
-				if (props.getBool('loggedIn') == true && props.getString('username') == $(this).children(".usrname").text()) {
-					$(this).css("background-image","url('images/BG_red_sliver.png')");
-				} else if (i % 2 == 0) {
-					$(this).css("background-image","url('images/BG_dark_sliver.png')");
-				} else if (i % 2 == 1) {
-					$(this).css("background-image","url('images/BG_light_sliver.png')");
-				}
-			});
 			db.execute("UPDATE ACCOUNTS SET FAVORITES=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
 			// User detail
 			$(".usrimg").bind('click',function(e){

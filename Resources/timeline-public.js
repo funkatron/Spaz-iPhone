@@ -28,7 +28,11 @@ function getTimelinePublic() {
 				tweet.id +
 			"' timestamp='" +
 				tweet.created_at +
-			"' class='status'><img src='" +
+			"' class='status ";
+				if (props.getBool('loggedIn') == true && props.getString('username') == tweet.user.screen_name) {text += "self";}
+				else if (i % 2 == 0) {text += "even";}
+				else if (i % 2 == 1) {text += "odd";}
+			text += "'><img src='" +
 				tweet.user.profile_image_url + 
 			"' class='usrimg'/><div class='usrname'>" +
 				tweet.user.screen_name + 
@@ -49,16 +53,8 @@ function getTimelinePublic() {
 		text += $("#tcontainer").html();
 		$("#tcontainer").empty();
 		$("#tcontainer").html(text);
-		$(".status").each(function(i){
-			if (props.getBool('loggedIn') == true && props.getString('username') == $(this).children(".usrname").text()) {
-				$(this).css("background-image","url('images/BG_red_sliver.png')");
-			} else if (i % 2 == 0) {
-				$(this).css("background-image","url('images/BG_dark_sliver.png')");
-			} else if (i % 2 == 1) {
-				$(this).css("background-image","url('images/BG_light_sliver.png')");
-			}
-		});
-		tabs[0].setBadge(count);
+		badge += count;
+		tabs[0].setBadge(badge);
 		//User detail
 		$(".usrimg").bind('click',function(e){
 			//Set user ID global
@@ -107,6 +103,7 @@ window.onload = function() {
 	// Initialize
 	props = Titanium.App.Properties;
 	tabs = Titanium.UI.getTabs();
+	badge = 0;
 	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
 	Titanium.UI.currentWindow.addView(noInternet);
 	
@@ -128,6 +125,7 @@ window.onload = function() {
 	
 	Titanium.UI.currentWindow.addEventListener('unfocused',function(){
 		tabs[0].setBadge(null);
+		badge = 0;
 	});
 	
 };

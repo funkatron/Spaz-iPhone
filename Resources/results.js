@@ -43,7 +43,6 @@ function getResults() {
 	xhr.onload = function() {
 		var data = JSON.parse(this.responseText);
 		var text = '';
-		var count = 0;
 		var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 		var mention = /@\w{1,15}/gi;
 		if (mode == 0) {	//Search
@@ -51,15 +50,11 @@ function getResults() {
 			$.each(data.results, function(i,tweet){
 				text += "<div id='" +
 					tweet.id +
-				"' class='status' style='background-image:url(\"";
-				if (tweet.from_user == props.getString('username')) {
-					if (loggedIn == true) {
-						{text += "images/BG_red_sliver.png";}
-					}
-				}
-				else if (count % 2 == 0) {text += "images/BG_dark_sliver.png";}
-				else if (count % 2 == 1) {text += "images/BG_light_sliver.png";}
-				text += "\");'><img src='" +
+				"' class='status ";
+					if (loggedIn == true && tweet.from_user == props.getString('username')) {text += "self";}
+					else if (i % 2 == 0) {text += "even";}
+					else if (i % 2 == 1) {text += "odd";}
+				text += "'><img src='" +
 					tweet.profile_image_url +
 				"' class='usrimg'/><div class='usrname'>" +
 					tweet.from_user +
@@ -74,22 +69,17 @@ function getResults() {
 							return ("<hilite>"+exp+"</hilite>");
 						}) +
 				"</div></div>";
-				count++;
 			});
 		}
 		else if (mode == 1) {	//Recent posts
 			$.each(data, function(i,tweet){
 				text += "<div id='" +
 					tweet.id +
-				"' class='status' style='background-image:url(\"";
-				if (tweet.user.screen_name == props.getString('username')) {
-					if (loggedIn == true) {
-						{text += "images/BG_red_sliver.png";}
-					}
-				}
-				else if (count % 2 == 0) {text += "images/BG_dark_sliver.png";}
-				else if (count % 2 == 1) {text += "images/BG_light_sliver.png";}
-				text += "\");'><img src='" +
+				"' class='status ";
+					if (loggedIn == true && tweet.user.screen_name == props.getString('username')) {text += "self";}
+					else if (i % 2 == 0) {text += "even";}
+					else if (i % 2 == 1) {text += "odd";}
+				text += "'><img src='" +
 					tweet.user.profile_image_url +
 				"' class='usrimg'/><div class='usrname'>" +
 					tweet.user.screen_name +
@@ -102,7 +92,6 @@ function getResults() {
 						return ("<usr>"+exp+"</usr>");
 					}) +
 				"</div></div>";
-				count++;
 			});
 		}
 		ind.hide();
@@ -131,6 +120,7 @@ function getResults() {
 			e.stopPropagation();
 			return false;
 		});
+		
 		//Mentions
 		$("usr").bind('click',function(e){
 			e.stopPropagation();

@@ -45,8 +45,7 @@ window.onload = function() {
 	db = Titanium.Database.open('mydb');
 	//CLIENT: 0 = Twitter, 1 = Identica
 	//DEF: 0 = NO, 1 = YES
-	//db.execute('DROP TABLE ACCOUNTS');
-	db.execute('CREATE TABLE IF NOT EXISTS ACCOUNTS (CLIENT INTEGER, ACCOUNT TEXT, PASSWORD TEXT, DEF INTEGER, TIMELINE TEXT, REPLIES TEXT, DMS TEXT, FAVORITES TEXT)');
+	db.execute('CREATE TABLE IF NOT EXISTS ACCOUNTS (CLIENT INTEGER, ACCOUNT TEXT, PASSWORD TEXT, DEF INTEGER, TIMELINE TEXT, TIMELINECOUNT INTEGER, REPLIES TEXT, REPLYCOUNT INTEGER, DMS TEXT, DMCOUNT INTEGER, FAVORITES TEXT)');
 	
 	// Login default account if exists
 	var initialState; // 0 = No accounts, 1 = Accounts but no default, 2 = Default login success

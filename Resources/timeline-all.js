@@ -47,15 +47,25 @@ function getTimelineAll() {
 	xhr.onload = function() {
 		var data = JSON.parse(this.responseText);
 		var text = '';
-		var count = 0;
 		var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 		var mention = /@\w{1,15}/gi;
+		var dbquery = db.execute('SELECT TIMELINECOUNT FROM ACCOUNTS WHERE ACCOUNT=?',name);
+		var timelineCount = dbquery.field(0);
+		dbquery.close();
+		$.each(data, function(i,tweet){
+			timelineCount++;
+		});
+		var thisCount = 0;
 		$.each(data, function(i,tweet){
 			text += "<div id='" +
 				tweet.id +
 			"' timestamp='" +
 				tweet.created_at +
-			"' class='status'><img src='" +
+			"' class='status ";
+				if (props.getBool('loggedIn') == true && props.getString('username') == tweet.user.screen_name) {text += "self";}
+				else if ((timelineCount-thisCount) % 2 == 0) {text += "even";}
+				else if ((timelineCount-thisCount) % 2 == 1) {text += "odd";}
+			text += "'><img src='" +
 				tweet.user.profile_image_url + 
 			"' class='usrimg'/><div class='usrname'>" +
 				tweet.user.screen_name + 
@@ -68,7 +78,7 @@ function getTimelineAll() {
 					return ("<usr>"+exp+"</usr>");
 				}) +
 			"</div></div>";
-			count++;
+			thisCount++;
 		});
 		if (cache == '') {
 			ind.hide();
@@ -76,21 +86,13 @@ function getTimelineAll() {
 		text += $("#tcontainer").html();
 		$("#tcontainer").empty();
 		$("#tcontainer").html(text);
-		$(".status").each(function(i){
-			if (props.getBool('loggedIn') == true && props.getString('username') == $(this).children(".usrname").text()) {
-				$(this).css("background-image","url('images/BG_red_sliver.png')");
-			} else if (i % 2 == 0) {
-				$(this).css("background-image","url('images/BG_dark_sliver.png')");
-			} else if (i % 2 == 1) {
-				$(this).css("background-image","url('images/BG_light_sliver.png')");
-			}
-		});
-		if (count > 0) {
-			tabs[0].setBadge(count);
+		if (thisCount > 0) {
+			badge += thisCount;
+			tabs[0].setBadge(badge);
 		}
-		db.execute("UPDATE ACCOUNTS SET TIMELINE=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
+		db.execute("UPDATE ACCOUNTS SET TIMELINE=?,TIMELINECOUNT=? WHERE ACCOUNT=?",encodeURIComponent(text),timelineCount,name);
 		//User detail
-		$(".usrimg").bind('click',function(e){
+		$(".usrimg").bind('click',function(){
 			//Set user ID global
 			props.setString('screenname',$(this).siblings(".usrname").html());
 			//User detail view
@@ -100,7 +102,7 @@ function getTimelineAll() {
 			}).open();
 		});
 		//Message detail
-		$(".usrmsg").bind('click',function(e){
+		$(".usrmsg").bind('click',function(){
 			//Set message ID global
 			props.setString('msgID',$(this).parent(".status").attr("id"));
 			//Message detail view
@@ -138,6 +140,7 @@ window.onload = function() {
 	props = Titanium.App.Properties;
 	db = Titanium.Database.open('mydb');
 	tabs = Titanium.UI.getTabs();
+	badge = 0;
 	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
 	Titanium.UI.currentWindow.addView(noInternet);
 	
@@ -166,6 +169,7 @@ window.onload = function() {
 	
 	Titanium.UI.currentWindow.addEventListener('unfocused',function(){
 		tabs[0].setBadge(null);
+		badge = 0;
 	});
 	
 };

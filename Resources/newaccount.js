@@ -152,7 +152,7 @@ window.onload = function() {
 					// Account not set as default, login
 					if (isDefault == false) {
 						if (accountMode == 1) {
-							db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,0,'','','','',accName);
+							db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,TIMELINECOUNT=?,REPLIES=?,REPLYCOUNT=?,DMS=?,DMCOUNT=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,0,'',0,'',0,'',0,'',accName);
 						}
 						else {
 							props.setBool('accountCreated',true);
@@ -164,7 +164,7 @@ window.onload = function() {
 							props.setBool('accountChangeReplies',true);
 							props.setBool('accountChangeDMs',true);
 							props.setInt('inboxMode',0);
-							db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,0,'','','','');
+							db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, TIMELINECOUNT, REPLIES, REPLYCOUNT, DMS, DMCOUNT, FAVORITES) VALUES(?,?,?,?,?,?,?,?,?,?,?)',client,name,pass,0,'',0,'',0,'',0,'');
 						}
 						ind.hide();
 						Titanium.UI.currentWindow.close();
@@ -187,7 +187,7 @@ window.onload = function() {
 						}
 						if (alreadyDefault == true) {	// There is an existing default account
 							if (accounts.fieldByName('account') == accName) {	//Account replacing itself, don't need to query, just update
-								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'','','','',accName);
+								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,TIMELINECOUNT=?,REPLIES=?,REPLYCOUNT=?,DMS=?,DMCOUNT=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'',0,'',0,'',0,'',accName);
 								accounts.close();
 								ind.hide();
 								Titanium.UI.currentWindow.close();
@@ -204,7 +204,7 @@ window.onload = function() {
 										db.execute("UPDATE ACCOUNTS SET DEF=? WHERE ACCOUNT=?",0,tempname);
 										//Create account as normal
 										if (accountMode == 1) {
-											db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'','','','',accName);
+											db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,TIMELINECOUNT=?,REPLIES=?,REPLYCOUNT=?,DMS=?,DMCOUNT=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'',0,'',0,'',0,'',accName);
 										}
 										else {
 											props.setBool('accountCreated',true);
@@ -216,7 +216,7 @@ window.onload = function() {
 											props.setBool('accountChangeReplies',true);
 											props.setBool('accountChangeDMs',true);
 											props.setInt('inboxMode',0);
-											db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,1,'','','','');
+											db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, TIMELINECOUNT, REPLIES, REPLYCOUNT, DMS, DMCOUNT, FAVORITES) VALUES(?,?,?,?,?,?,?,?,?,?,?)',client,name,pass,1,'',0,'',0,'',0,'');
 										}
 										accounts.close();
 										ind.hide();
@@ -231,7 +231,7 @@ window.onload = function() {
 						}
 						else if (alreadyDefault == false) {	// No existing default account
 							if (accountMode == 1) {
-								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,REPLIES=?,DMS=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'','','','',accName);
+								db.execute("UPDATE ACCOUNTS SET CLIENT=?,ACCOUNT=?,PASSWORD=?,DEF=?,TIMELINE=?,TIMELINECOUNT=?,REPLIES=?,REPLYCOUNT=?,DMS=?,DMCOUNT=?,FAVORITES=? WHERE ACCOUNT=?",client,name,pass,1,'',0,'',0,'',0,'',accName);
 							}
 							else {
 								props.setBool('accountCreated',true);
@@ -243,7 +243,7 @@ window.onload = function() {
 								props.setBool('accountChangeReplies',true);
 								props.setBool('accountChangeDMs',true);
 								props.setInt('inboxMode',0);
-								db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, REPLIES, DMS, FAVORITES) VALUES(?,?,?,?,?,?,?,?)',client,name,pass,1,'','','','');
+								db.execute('INSERT INTO ACCOUNTS (CLIENT, ACCOUNT, PASSWORD, DEF, TIMELINE, TIMELINECOUNT, REPLIES, REPLYCOUNT, DMS, DMCOUNT, FAVORITES) VALUES(?,?,?,?,?,?,?,?,?,?,?)',client,name,pass,1,'',0,'',0,'',0,'');
 							}
 							accounts.close();
 							ind.hide();

@@ -49,6 +49,18 @@ img.centeredimg {
 	background-repeat:repeat-x;
 }
 
+.even {
+	background-image:url('images/bg_dark_sliver.png');
+}
+
+.odd {
+	background-image:url('images/bg_light_sliver.png');
+}
+
+.self {
+	background-image:url('images/bg_red_sliver.png');
+}
+
 .usrimg {
 	margin-top:19px;
 	margin-left:10px;

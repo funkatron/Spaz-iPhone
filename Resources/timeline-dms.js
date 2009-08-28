@@ -47,15 +47,25 @@ function getTimelineDMs() {
 	xhr.onload = function() {
 		var data = JSON.parse(this.responseText);
 		var text = '';
-		var count = 0;
 		var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 		var mention = /@\w{1,15}/gi;
+		var dbquery = db.execute('SELECT DMCOUNT FROM ACCOUNTS WHERE ACCOUNT=?',name);
+		var DMCount = dbquery.field(0);
+		dbquery.close();
+		$.each(data, function(i,tweet){
+			DMCount++;
+		});
+		var thisCount = 0;
 		$.each(data, function(i,tweet){
 			text += "<div id='" +
 				tweet.id +
 			"' timestamp='" +
 				tweet.created_at +
-			"' class='status'><img src='" +
+			"' class='status ";
+				if (props.getBool('loggedIn') == true && props.getString('username') == tweet.sender.screen_name) {text += "self";}
+				else if ((DMCount-thisCount) % 2 == 0) {text += "even";}
+				else if ((DMCount-thisCount) % 2 == 1) {text += "odd";}
+			text += "'><img src='" +
 				tweet.sender.profile_image_url + 
 			"' class='usrimg'/><div class='usrname'>" +
 				tweet.sender_screen_name + 
@@ -68,7 +78,7 @@ function getTimelineDMs() {
 					return ("<usr>"+exp+"</usr>");
 				}) +
 			"</div></div>";
-			count++;
+			thisCount++;
 		});
 		if (cache == '') {
 			ind.hide();
@@ -76,16 +86,7 @@ function getTimelineDMs() {
 		text += $("#tcontainer").html();
 		$("#tcontainer").empty();
 		$("#tcontainer").html(text);
-		$(".status").each(function(i){
-			if (props.getBool('loggedIn') == true && props.getString('username') == $(this).children(".usrname").text()) {
-				$(this).css("background-image","url('images/BG_red_sliver.png')");
-			} else if (i % 2 == 0) {
-				$(this).css("background-image","url('images/BG_dark_sliver.png')");
-			} else if (i % 2 == 1) {
-				$(this).css("background-image","url('images/BG_light_sliver.png')");
-			}
-		});
-		db.execute("UPDATE ACCOUNTS SET DMS=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
+		db.execute("UPDATE ACCOUNTS SET DMS=?,DMCOUNT=? WHERE ACCOUNT=?",encodeURIComponent(text),DMCount,name);
 		//User detail
 		$(".usrimg").bind('click',function(e){
 			//Set user ID global
