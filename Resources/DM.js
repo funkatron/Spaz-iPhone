@@ -1,6 +1,13 @@
 window.onload = function() {
 	
-	//Initialize
+	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
+	
+	// Initialize
 	props = Titanium.App.Properties;
 	var msgID = props.getString('msgID');
 	var name = props.getString('username');
@@ -23,23 +30,22 @@ window.onload = function() {
 			var link = /(https?:\/\/)([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)[\w\/]/gi;
 			var mention = /@\w{1,15}/gi;
 			$(".usrmsgdetail").html(data[0].text.replace(link, function(exp) {
-				return ("<lnk>"+exp+"</lnk>");
+					return ("<lnk>"+exp+"</lnk>");
 				}).replace(mention, function(exp) {
 					return ("<usr>"+exp+"</usr>");
 				})
 			);
 			$(".msgstamp").html("Received <heavy>"+humane_date(data[0].created_at)+"</heavy>");
 			id = encodeURIComponent(data[0].sender.screen_name);
-			//Links
+			// Links
 			$("lnk").bind('click',function(){
 				Titanium.Platform.openURL($(this).text());
 			});
-			//Mentions
-			$("usr").bind('click',function(e){
+			// Mentions
+			$("usr").bind('click',function(){
 				e.stopPropagation();
-				//Set user ID global
+				//Set message screenname global
 				props.setString('screenname',$(this).text().substring(1));
-				//User detail view
 				Titanium.UI.createWindow({
 					url:'user.html',
 					barColor:'#423721',
@@ -52,6 +58,7 @@ window.onload = function() {
 	};
 	
 	getDMDetails();
+	// Display once data has been fetched
 	$("body").show();
 	
 	// Block button
@@ -59,7 +66,7 @@ window.onload = function() {
 		image:'images/button_icon_block.png',
 		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
 	});
-	blockbutton.addEventListener('click', function(e) {
+	blockbutton.addEventListener('click', function() {
 		var blockconfirm = Titanium.UI.createAlertDialog({
             title: "Are you sure you want to block user "+id+"?",
 			message: "Once blocked, you will only be able to unblock through Twitter's website",
@@ -74,7 +81,6 @@ window.onload = function() {
 					request = "http://"+name+":"+pass+"@identi.ca/api/blocks/create/"+encodeURIComponent(id)+".json";
 				}
 				var xhr = Titanium.Network.createHTTPClient();
-				xhr.onload = function() {};
 				xhr.open("POST",request);
 				xhr.send();
 				Titanium.UI.currentWindow.close();
@@ -85,7 +91,7 @@ window.onload = function() {
 	Titanium.UI.currentWindow.setRightNavButton(blockbutton);
 	
 	// Delete button
-	$(".leftbutton").bind('click',function(e){
+	$(".leftbutton").bind('click',function(){
 		if (client == 0) {
 			var delconfirm = Titanium.UI.createAlertDialog({
 	            title: "Are you sure you want delete this message?",
@@ -94,7 +100,6 @@ window.onload = function() {
 			delconfirm.addEventListener('click', function(k) {
 				if (k.index == 0) {
 					var xhr = Titanium.Network.createHTTPClient();
-					xhr.onload = function() {};
 					xhr.open("POST","http://"+name+":"+pass+"@twitter.com/direct_messages/destroy/"+encodeURIComponent(msgID)+".json");
 					xhr.send();
 					Titanium.UI.currentWindow.close();
@@ -109,13 +114,14 @@ window.onload = function() {
 		}
 	});
 
-	//Direct Message button
+	// Direct Message button
 	$(".rightbutton").bind('click',function(e){
-		//Set postHeader, initialPost, postMode, sendTo globals
+		// Set globals
 		props.setString('postHeader',"Direct Message to "+id);
 		props.setString('initialPost',"");
 		props.setInt('postMode',1);
 		props.setString('sendTo',id);
+		// Post view
 		Titanium.UI.createWindow({
 			url:'post.html',
 			barColor:'#423721',

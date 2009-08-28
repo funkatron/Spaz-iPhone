@@ -1,5 +1,5 @@
 function getResults() {
-	
+
 	$("#rcontainer").empty();
 	// Activity Indicator
 	var ind = Titanium.UI.createActivityIndicator({
@@ -16,9 +16,9 @@ function getResults() {
 	var mode = props.getInt('resultsMode');
 	if (mode == 0) { 	//Search
 		if (client == 0) {
-			request = "http://search.twitter.com/search.json?q="+encodeURIComponent(query);
+			request = "http://search.twitter.com/search.json?rpp=50&q="+encodeURIComponent(query);
 		} else {
-			request = "http://identi.ca/api/search.json?q="+encodeURIComponent(query);
+			request = "http://identi.ca/api/search.json?rpp=50&q="+encodeURIComponent(query);
 		}
 	}
 	else if (mode == 1) { 	//Recent Posts
@@ -26,16 +26,16 @@ function getResults() {
 			var name = props.getString('username');
 			var pass = props.getString('password');
 			if (client == 0) {
-				request = "http://"+name+":"+pass+"@twitter.com/statuses/user_timeline.json?screen_name="+encodeURIComponent(query);
+				request = "http://"+name+":"+pass+"@twitter.com/statuses/user_timeline.json?count=50&screen_name="+encodeURIComponent(query);
 			} else {
-				request = "http://"+name+":"+pass+"@identi.ca/api/statuses/user_timeline.json?screen_name="+encodeURIComponent(query);
+				request = "http://"+name+":"+pass+"@identi.ca/api/statuses/user_timeline.json?count=50&screen_name="+encodeURIComponent(query);
 			}
 		}
 		else {
 			if (client == 0) {
-				request = "http://twitter.com/statuses/user_timeline.json?screen_name="+encodeURIComponent(query);
+				request = "http://twitter.com/statuses/user_timeline.json?count=50&screen_name="+encodeURIComponent(query);
 			} else {
-				request = "http://identi.ca/api/statuses/user_timeline.json?screen_name="+encodeURIComponent(query);
+				request = "http://identi.ca/api/statuses/user_timeline.json?count=50&screen_name="+encodeURIComponent(query);
 			}
 		}
 	}
@@ -156,6 +156,13 @@ window.onload = function() {
 	var query = props.getString('searchQuery');
 	var loggedIn = props.getBool('loggedIn');
 	var client = props.getInt('clientMode');
+	
+	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
 	
 	Titanium.UI.currentWindow.setTitle(query);
 

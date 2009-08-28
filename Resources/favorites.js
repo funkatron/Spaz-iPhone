@@ -11,14 +11,19 @@ function getFavorites() {
 	ind.show();
 	var loggedIn = props.getBool('loggedIn');
 	if (loggedIn == true) {
+		// Get user data
 		var name = props.getString('username');
 		var pass = props.getString('password');
 		var client = props.getInt('clientMode');
-		var cache = db.execute("SELECT FAVORITES FROM ACCOUNTS WHERE ACCOUNT='"+name+"'").field(0);
+		var dbquery = db.execute("SELECT FAVORITES FROM ACCOUNTS WHERE ACCOUNT=?",name);
+		var cache = decodeURIComponent(dbquery.field(0));
+		dbquery.close();
+		// If they exist, display cached favorites
 		if (cache != '') {
 			ind.hide();
 			$("#fcontainer").html(cache);
 		}
+		// Get favorites
 		var request = '';
 		if (client == 0) {
 			request = "http://"+name+":"+pass+"@twitter.com/favorites.json";
@@ -35,15 +40,9 @@ function getFavorites() {
 			$.each(data, function(i,tweet){
 				text += "<div id='" +
 					tweet.id +
-				"' class='status' style='background-image:url(\"";
-				if (tweet.user.screen_name == props.getString('username')) {
-					if (loggedIn == true) {
-						{text += "images/BG_red_sliver.png";}
-					}
-				}
-				else if (count % 2 == 0) {text += "images/BG_dark_sliver.png";}
-				else if (count % 2 == 1) {text += "images/BG_light_sliver.png";}
-				text += "\");'><img src='" +
+				"' timestamp='" +
+					tweet.created_at +
+				"' class='status'><img src='" +
 					tweet.user.profile_image_url +
 				"' class='usrimg'/><div class='usrname'>" +
 					tweet.user.screen_name +
@@ -59,20 +58,30 @@ function getFavorites() {
 				count++;
 			});
 			ind.hide();
+			// Display & cache favorites
 			$("#fcontainer").html(text);
-			db.execute("UPDATE ACCOUNTS SET FAVORITES=? WHERE ACCOUNT='"+name+"'",text);
-			//User detail
+			$(".status").each(function(i){
+				if (props.getBool('loggedIn') == true && props.getString('username') == $(this).children(".usrname").text()) {
+					$(this).css("background-image","url('images/BG_red_sliver.png')");
+				} else if (i % 2 == 0) {
+					$(this).css("background-image","url('images/BG_dark_sliver.png')");
+				} else if (i % 2 == 1) {
+					$(this).css("background-image","url('images/BG_light_sliver.png')");
+				}
+			});
+			db.execute("UPDATE ACCOUNTS SET FAVORITES=? WHERE ACCOUNT=?",encodeURIComponent(text),name);
+			// User detail
 			$(".usrimg").bind('click',function(e){
-				//Set user screenname global
+				// Set message screenname global
 				props.setString('screenname',$(this).siblings(".usrname").text());
 				Titanium.UI.createWindow({
 					url:'user.html',
 					barColor:'#423721',
 				}).open();
 			});
-			//Message detail
+			// Message detail
 			$(".usrmsg").bind('click',function(e){
-				//Set message ID global
+				// Set message ID global
 				props.setString('msgID',$(this).parent(".status").attr("id"));
 				props.setBool('isFavorite',true);
 				Titanium.UI.createWindow({
@@ -80,18 +89,17 @@ function getFavorites() {
 					barColor:'#423721',
 				}).open();
 			});
-			//Links
+			// Links
 			$("lnk").bind('click',function(e){
 				Titanium.Platform.openURL($(this).text());
 				e.stopPropagation();
 				return false;
 			});
-			//Mentions
+			// Mentions
 			$("usr").bind('click',function(e){
 				e.stopPropagation();
 				//Set user ID global
 				props.setString('screenname',$(this).text().substring(1));
-				//User detail view
 				Titanium.UI.createWindow({
 					url:'user.html',
 					barColor:'#423721',
@@ -113,19 +121,18 @@ window.onload = function() {
 	
 	// Initialize
 	props = Titanium.App.Properties;
-	db = Titanium.Database.open('fake');
-	db.close();
-	db._TOKEN = props.getString('dbtoken');
+	db = Titanium.Database.open('mydb');
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
 	
-	getFavorites();
+	getFavorites();	// Call on load
 		
 	// Refresh page on focus
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
-		getFavorites();
+		// Check for internet
+		if (Titanium.Network.online == false) {
+			Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+		}
+		getFavorites();	// Call on focus
 	});
-	
-	// Titanium.UI.currentWindow.addEventListener('unfocused',function(){
-	// 	db.close();
-	// });
-	
 };

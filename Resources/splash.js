@@ -1,13 +1,5 @@
 window.onload = function() {
-	
-	// //Bouncy logo
-	// $("#logo").animate({top:"-300px"}, 2000)
-	// $("#logo").animate({top:"0px"}, 500);
-	// $("#logo").animate({top:"-120px"}, 550);
-	// $("#logo").animate({top:"0px"}, 600);
-	// $("#logo").animate({top:"-48px"}, 650);
-	// $("#logo").animate({top:"0px"}, 700);
-	
+
 	$("#logo").animate({opacity:'1'}, 2000);
 	
 	//Login button

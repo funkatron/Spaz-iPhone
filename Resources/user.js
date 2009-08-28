@@ -1,5 +1,12 @@
 window.onload = function() {
 
+	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
+
 	//Initialize
 	props = Titanium.App.Properties;
 	var id = props.getString('screenname');

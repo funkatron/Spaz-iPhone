@@ -1,26 +1,27 @@
-function getAccounts() {	//Main function, called below
+function getAccounts() {
 	
 	// Edit button
 	var editbutton = Titanium.UI.createButton({
 		title:'Edit',
 		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
 	});
-	editbutton.addEventListener('click',function(e){
+	editbutton.addEventListener('click',function(){
 		editAccounts();
 	});
 	Titanium.UI.currentWindow.setRightNavButton(editbutton);
 	
 	// Set option container height and rowCount
-	var rowCount = db.execute('SELECT COUNT(*) FROM ACCOUNTS').field(0);
+	var rc = db.execute('SELECT COUNT(*) FROM ACCOUNTS');
+	var rowCount = rc.field(0);
+	rc.close();
 	var height = 50 + rowCount*50;
 	$("#acontainer").animate({
 		'height':height,
 		'width':'300px',
 	}, 1000);
 
-	// Display Account Info
+	// Get Account Info
 	var text = '';
-	// Display each account button
 	var accounts = db.execute('SELECT * FROM ACCOUNTS');
 	for (var i = 0; i < rowCount; i++) {
 		text += "<div class='option'><img src='";
@@ -36,33 +37,31 @@ function getAccounts() {	//Main function, called below
 		accounts.next();
 	}
 	accounts.close();
-	// Display Public Timeline button
+	// Public Timeline button
 	text += "<div id='public' class='option'><img src='images/twitter.png' class='optleftimg'/><div class='label'>Public Timeline</div>" +
 			"<img src='images/arrow_gray.png' class='optendimg'/></div>";
-	// Set html
+	// Display
 	$("#acontainer").html(text);
 
 	// Login
-	$(".option").bind('click',function(e){
+	$(".option").bind('click',function(){
 		// Public Timeline button
 		if ($(this).is("#public")) {
 			props.setBool('loggedIn',false);
+			props.setInt('inboxMode',3);
 			props.setInt('clientMode',0);
 			Titanium.UI.currentWindow.close();
 		}
+		// Account button
 		else {
-			//Get info for selected account
-			var accounts2 = db.execute('SELECT * FROM ACCOUNTS');
-			while (accounts2.isValidRow()) {
-				if (accounts2.fieldByName('account') == $(this).children(".label").text()) {break;}
-				accounts2.next();
-			}
-			var name = accounts2.fieldByName('account');
-			var pass = accounts2.fieldByName('password');
-			var client = accounts2.fieldByName('client');
-			accounts2.close();
+			// Get info for selected account
+			var account = db.execute('SELECT * FROM ACCOUNTS WHERE ACCOUNT=?',$(this).children(".label").text());
+			var name = account.fieldByName('account');
+			var pass = account.fieldByName('password');
+			var client = account.fieldByName('client');
+			account.close();
 		
-			//Attempt login
+			// Attempt login
 			var request = '';
 			if (client == 0) {
 				request = "http://"+name+":"+pass+"@twitter.com/account/verify_credentials.json";
@@ -80,8 +79,11 @@ function getAccounts() {	//Main function, called below
 		            }).show();
 				}
 				else {
-					//Account verified, set loggedIn, account globals to true
+					// Account verified, set globals
 					props.setBool('loggedIn',true);
+					props.setBool('accountChangeAll',true);
+					props.setBool('accountChangeReplies',true);
+					props.setBool('accountChangeDMs',true);
 					props.setString('username',name);
 					props.setString('password',pass);
 					props.setInt('clientMode',client);
@@ -102,22 +104,23 @@ function editAccounts() {
 		title:'Done',
 		style:Titanium.UI.iPhone.SystemButtonStyle.BORDERED,
 	});
-	donebutton.addEventListener('click',function(e){
+	donebutton.addEventListener('click',function(){
 		getAccounts();
 	});
 	Titanium.UI.currentWindow.setRightNavButton(donebutton);
 	
-	//Set option container height
-	var rowCount = db.execute('SELECT COUNT(*) FROM ACCOUNTS').field(0);
+	// Set option container height and rowCount
+	var rc = db.execute('SELECT COUNT(*) FROM ACCOUNTS');
+	var rowCount = rc.field(0);
+	rc.close();
 	var height = 50 + rowCount*50;
 	$("#acontainer").animate({
 		'height':height,
 		'width':'260px',
 	}, 1000);
 
-	//Display Account Info
+	// Get Account Info
 	var text = '';
-	// Display each account button
 	var accounts = db.execute('SELECT * FROM ACCOUNTS');
 	for (var i = 0; i < rowCount; i++) {
 		text += "<img src='images/delete.png' class='editicon del'/><div class='option'><img src='";
@@ -132,13 +135,15 @@ function editAccounts() {
 		text += "<img src='images/list_edit_icon.png' class='optendimg'/></div><div class='editdivider'></div>";
 		accounts.next();
 	}
+	accounts.close();
+	// Add New Account Button
 	text += "<img src='images/add.png' class='editicon add'/><div id='newaccount' class='option'><div id='newaccounttext' class='label'>+ Add New Account</div>" + 
 			"<img src='images/arrow_gray.png' class='optendimg'/></div>";
+	// Display
 	$("#acontainer").html(text);
-	accounts.close();
 
-	//Delete buttons
-	$(".del").bind('click',function(e){
+	// Delete buttons
+	$(".del").bind('click',function(){
 		var accName = $(this).next(".option").children(".label").text();
 		var del = Titanium.UI.createAlertDialog({
 			title:'Are you sure you want to delete account '+accName+'?',
@@ -146,15 +151,21 @@ function editAccounts() {
 		});
 		del.addEventListener('click',function(k){
 			if (k.index == 0) {
-				db.execute("DELETE FROM ACCOUNTS WHERE ACCOUNT='"+accName+"'");
+				db.execute("DELETE FROM ACCOUNTS WHERE ACCOUNT=?",accName);
+				// If deleted account is currently signed in, log out
+				if (props.getBool('loggedIn') == true && props.getString('username') == accName) {
+					props.setBool('loggedIn',false);
+					props.setInt('inboxMode',3);
+					props.setInt('clientMode',0);
+				}
 				getAccounts();
 			}
 		});
 		del.show();
 	});
 	
-	//Add button
-	$(".add").bind('click',function(e){
+	// Add button
+	$(".add").bind('click',function(){
 		props.setInt('accountMode',0);
 		Titanium.UI.createWindow({
 			url:'newaccount.html',
@@ -162,8 +173,8 @@ function editAccounts() {
 		}).open();
 	});
 
-	//Login
-	$(".option").bind('click',function(e){
+	// Edit account
+	$(".option").bind('click',function(){
 		if ($(this).is("#newaccount")) {
 			props.setInt('accountMode',0);
 			Titanium.UI.createWindow({
@@ -186,24 +197,18 @@ window.onload = function() {
 	
 	// Initialize
 	props = Titanium.App.Properties;
-	db = Titanium.Database.open('fake');
-	db.close();
-	db._TOKEN = props.getString('dbtoken');
+	db = Titanium.Database.open('mydb');
 	
-	getAccounts(); //call on load
+	// Check for internet
+	var noInternet = Titanium.UI.createWebView({url:'nointernet.html', name:'nointernet'});
+	Titanium.UI.currentWindow.addView(noInternet);
+	if (Titanium.Network.online == false) {
+		Titanium.UI.currentWindow.showView(Titanium.UI.currentWindow.getViewByName('nointernet'));
+	}
 	
-	//Refresh page on focus
+	getAccounts(); // Call on load
+	
 	Titanium.UI.currentWindow.addEventListener('focused',function(){
-		
-		// Close if account just created
-		if (props.getBool('accountCreated') == true) {
-			//Titanium.UI.currentWindow.close();	// For now, doesn't work
-		}
-		getAccounts();	//call on focus
-		
+		getAccounts();	// Call on focus
 	});
-	
-	// Titanium.UI.currentWindow.addEventListener('unfocused',function(){
-	// 	db.close();
-	// });
 };
